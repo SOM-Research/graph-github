@@ -33,4 +33,5 @@ python AlexFabre twbs bootstrap
 
 A prompt will ask you for your github password to allow you making a the requests via the differents github API's.
 
-This is [an example](http://www.alexfabre.com/twbs-bootstrap.html) of what it should display.
+This is [an example](http://www.alexfabre.com/include/project/twbs-bootstrap.html) of what it should display.
+
