@@ -50,8 +50,18 @@ data = json.loads(f.read())
 N=len(data['nodes'])
 
 L=len(data['links'])
+Edges=[]
+labels_links=[]
+for link in data['links']:
+	Edges.append((link['source'], link['target']))
+	labels_links.append(link['value'])
+	labels_links.append(link['value'])
+	labels_links.append(link['value'])
+print Edges
+print labels_links
 
-Edges=[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
+
+# Edges=[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
 
 G=ig.Graph(Edges, directed=False)
 
@@ -82,6 +92,7 @@ if max_user_commit==0 and max_file_commit==0:
 	    	max_file_commit=int(node['commits'])
 
 
+
 for node in data['nodes']:
     if node['type']=='user':
     	labels_user.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
@@ -93,6 +104,7 @@ for node in data['nodes']:
     	nf+=1
     	group_file.append(node['group'])
     	commits_file.append((int(node['commits'])*50/max_file_commit)+8)
+
 
 layt=G.layout('kk', dim=3) 
 
@@ -112,6 +124,8 @@ for e in Edges:
     Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
     Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
     Ze+=[layt[e[0]][2],layt[e[1]][2], None] 
+    print e
+
 
 
 import plotly.plotly as py
@@ -124,13 +138,14 @@ trace1=Scatter3d(x=Xe,
                mode='lines',
                name='Links',
                line=Line(color='rgb(185,185,185)', width=0.8),
-               hoverinfo='none'
+               text=labels_links,
+               hoverinfo='text'
                )
 trace2=Scatter3d(x=Xnu,
                y=Ynu,
                z=Znu,  
                mode='markers',
-               name='Contributors',
+               name='Contributors : '+str(nu),
                marker=Marker(symbol='dot',
                              size=commits_user, 
                              color=group_user, 
@@ -144,7 +159,7 @@ trace3=Scatter3d(x=Xnf,
                y=Ynf,
                z=Znf,  
                mode='markers',
-               name='Files',
+               name='Files : '+str(nf),
                marker=Marker(symbol='square',
                              size=commits_file, 
                              color=group_file, 
