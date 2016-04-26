@@ -57,8 +57,6 @@ for link in data['links']:
 	labels_links.append(link['value'])
 	labels_links.append(link['value'])
 	labels_links.append(link['value'])
-print Edges
-print labels_links
 
 
 # Edges=[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
@@ -123,8 +121,7 @@ Ze=[]
 for e in Edges:
     Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
     Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
-    Ze+=[layt[e[0]][2],layt[e[1]][2], None] 
-    print e
+    Ze+=[layt[e[0]][2],layt[e[1]][2], None]
 
 
 
@@ -148,7 +145,7 @@ trace2=Scatter3d(x=Xnu,
                name='Contributors : '+str(nu),
                marker=Marker(symbol='dot',
                              size=commits_user, 
-                             color=group_user, 
+                             color=commits_user, 
                              colorscale='Viridis',
                              line=Line(color='rgb(50,50,50)', width=0.5)
                              ),
