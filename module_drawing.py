@@ -7,6 +7,11 @@ import urllib2
 import time
 import sys
 
+
+print '\033[4m'+'----Graph:----'+'\033[0m'
+
+print "[parsing json]",
+
 data = []
 
 if __name__ == "__main__":
@@ -18,13 +23,14 @@ if __name__ == "__main__":
 		print '\033[91m'+"\n----Error----: expected an argument\nusage:\n      python "+sys.argv[0]+"  file.json\n-------------\n"+'\033[0m'
 		quit()
 	t0=time.time()
+	fileName=sys.argv[1]
 	temp=sys.argv[1].split('-',1)
 	org=temp[0]
-	repo=temp[1]
-	directory=''
-	fileName=sys.argv[1]
+	path=temp[1].split(">",1)
+	repo=path[0]
+	directory=path[1].split('.')[0]
 
-	f = open(org+"-"+repo, "rb")
+	f = open(fileName, "rb")
 
 	max_user_commit=0
 	max_file_commit=0
@@ -48,6 +54,7 @@ else:
 
 data = json.loads(f.read())
 
+print '\033[92m'+" ok"+'\033[0m'
 
 N=len(data['nodes'])
 
@@ -64,9 +71,6 @@ for link in data['links']:
 # Edges=[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
 
 G=ig.Graph(Edges, directed=False)
-
-
-print '\033[4m'+'----Graph:----'+'\033[0m'
 
 
 ##################################################
@@ -185,7 +189,7 @@ axis=dict(showbackground=False,
 execution_time = time.time() - t0
 
 layout = Layout(
-         title="Network of contributors in <b>"+org+"</b>'s project <b>/"+repo+"/"+directory+"</b> (generated in "+str(execution_time)[:-9]+" sec)", 
+         title="Network of contributors in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-9]+" sec)", 
          width=1200,
          height=900,
          showlegend=True,
@@ -201,7 +205,7 @@ layout = Layout(
     annotations=Annotations([
            Annotation(
            showarrow=False, 
-            text="<a href='https://github.com/"+org+"/"+repo+"'>Repository</a>",
+            text="<a href='https://github.com/"+org+'/'+repo+"/tree/master/"+directory+"'>Repository</a>",
             xref='paper',     
             yref='paper',     
             x=0,  
@@ -217,7 +221,7 @@ layout = Layout(
 data=Data([trace1, trace2, trace3])
 fig=Figure(data=data, layout=layout)
 
-plotly.offline.plot(fig, filename=org+"-"+repo+".html")
+plotly.offline.plot(fig, filename=fileName[:-5]+".html")
 
 print '\033[92m'+" ok"+'\033[0m'
 
