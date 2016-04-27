@@ -7,7 +7,7 @@ import shared_data as sh
 sh.time = time.time()
 
 if len(sys.argv)<4 or len(sys.argv)>5:
-	print '\033[91m'+"-------------\nError: expected at least 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>  [<comments>]\n-------------"+'\033[0m'
+	print '\033[91m'+"-------------\nError: expected at least 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
 	quit()
 
 u=sys.argv[1]
