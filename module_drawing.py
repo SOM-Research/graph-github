@@ -185,7 +185,7 @@ axis=dict(showbackground=False,
 execution_time = time.time() - t0
 
 layout = Layout(
-         title="Network of contributors in <b>"+org+"</b>'s project <b>/"+repo+"/"+directory+"</b> (generated in "+str(execution_time)+" sec)", 
+         title="Network of contributors in <b>"+org+"</b>'s project <b>/"+repo+"/"+directory+"</b> (generated in "+str(execution_time)[:-9]+" sec)", 
          width=1200,
          height=900,
          showlegend=True,
@@ -201,7 +201,7 @@ layout = Layout(
     annotations=Annotations([
            Annotation(
            showarrow=False, 
-            text="View <a href='https://github.com/"+org+"/"+repo+"'>project</a>, <a href='"+fileName+"'>json File</a>",
+            text="<a href='https://github.com/"+org+"/"+repo+"'>Repository</a>",
             xref='paper',     
             yref='paper',     
             x=0,  
