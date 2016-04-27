@@ -1,4 +1,5 @@
 time=0 # Starting time
+fileName=''
 org='' # The company name the project belongs to
 repo='' # The project to analyse
 directory='' # Where to make the graph

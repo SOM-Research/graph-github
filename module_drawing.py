@@ -22,6 +22,7 @@ if __name__ == "__main__":
 	org=temp[0]
 	repo=temp[1]
 	directory=''
+	fileName=sys.argv[1]
 
 	f = open(org+"-"+repo, "rb")
 
@@ -32,12 +33,13 @@ else:
 
 	import shared_data
 
+	fileName=shared_data.fileName
 	t0=shared_data.time
 	org=shared_data.org
 	repo=shared_data.repo
 	directory=shared_data.directory
 
-	f = open(org+"-"+repo+".json", "rb")
+	f = open(fileName, "rb")
 
 	max_user_commit=shared_data.max_user_commit
 	max_file_commit=shared_data.max_file_commit
@@ -183,14 +185,14 @@ axis=dict(showbackground=False,
 execution_time = time.time() - t0
 
 layout = Layout(
-         title="Network of contributors (committers) in "+org+"'s project /"+repo+"/"+directory+" (generated in "+str(execution_time)+" sec)", 
-         width=900,
+         title="Network of contributors in <b>"+org+"</b>'s project <b>/"+repo+"/"+directory+"</b> (generated in "+str(execution_time)+" sec)", 
+         width=1200,
          height=900,
          showlegend=True,
          scene=Scene(  
-         xaxis=XAxis(axis),
-         yaxis=YAxis(axis), 
-         zaxis=ZAxis(axis), 
+         xaxis=XAxis(axis,showspikes=False),
+         yaxis=YAxis(axis,showspikes=False), 
+         zaxis=ZAxis(axis,showspikes=False), 
         ),
      margin=Margin(
         t=100
@@ -199,7 +201,7 @@ layout = Layout(
     annotations=Annotations([
            Annotation(
            showarrow=False, 
-            text="Data source: <a href='https://github.com/"+org+"/"+repo+"'>[1]</a>",
+            text="View <a href='https://github.com/"+org+"/"+repo+"'>project</a>, <a href='"+fileName+"'>json File</a>",
             xref='paper',     
             yref='paper',     
             x=0,  
