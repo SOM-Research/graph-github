@@ -15,7 +15,7 @@ if __name__ == "__main__":
 	# opener = urllib2.build_opener()
 	# f = opener.open(req)
 	if len(sys.argv)<2:
-		print "Error: expected an argument\nusage:\n      python "+sys.argv[0]+"  file.json\n"
+		print '\033[91m'+"\n----Error----: expected an argument\nusage:\n      python "+sys.argv[0]+"  file.json\n-------------\n"+'\033[0m'
 		quit()
 	t0=time.time()
 	temp=sys.argv[1].split('-',1)
@@ -64,7 +64,7 @@ for link in data['links']:
 G=ig.Graph(Edges, directed=False)
 
 
-print '----Graph:----'
+print '\033[4m'+'----Graph:----'+'\033[0m'
 
 
 ##################################################
@@ -103,7 +103,7 @@ for node in data['nodes']:
     	nf+=1
     	group_file.append(node['group'])
     	commits_file.append((int(node['commits'])*50/max_file_commit)+8)
-print " ok"
+print '\033[92m'+" ok"+'\033[0m'
 print "[position]",
 layt=G.layout('kk', dim=3) 
 
@@ -124,13 +124,13 @@ for e in Edges:
     Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
     Ze+=[layt[e[0]][2],layt[e[1]][2], None]
 
-print " ok"
+print '\033[92m'+" ok"+'\033[0m'
 
 import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly
 
-print "[draw]"
+print "[draw]"+'\033[95m'
 print '    links', len(Xe)/3
 trace1=Scatter3d(x=Xe,
                y=Ye,
@@ -156,7 +156,7 @@ trace2=Scatter3d(x=Xnu,
                text=labels_user,
                hoverinfo='text'
                )
-print '    files', len(Xnf)
+print '    files', len(Xnf),'\033[0m'
 trace3=Scatter3d(x=Xnf,
                y=Ynf,
                z=Znf,  
@@ -217,6 +217,6 @@ fig=Figure(data=data, layout=layout)
 
 plotly.offline.plot(fig, filename=org+"-"+repo+".html")
 
-print " ok"
+print '\033[92m'+" ok"+'\033[0m'
 
-print "[Finished]", execution_time, 'sec'
+print "[Finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
