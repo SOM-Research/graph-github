@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-
 import igraph as ig
-import json
-import urllib2
-
-import time
-import sys
+import json, urllib2
+import time, sys
 
 
 print '\033[4m'+'----Graph:----'+'\033[0m'
@@ -15,10 +11,7 @@ print "[parsing json]",
 data = []
 
 if __name__ == "__main__":
-	
-	# req = urllib2.Request("https://raw.githubusercontent.com/plotly/datasets/master/miserables.json")
-	# opener = urllib2.build_opener()
-	# f = opener.open(req)
+
 	if len(sys.argv)<2:
 		print '\033[91m'+"\n----Error----: expected an argument\nusage:\n      python "+sys.argv[0]+"  file.json\n-------------\n"+'\033[0m'
 		quit()
