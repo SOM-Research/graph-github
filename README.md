@@ -12,23 +12,23 @@ pip install pygithub3
 ```
 
 ```
-pip install igraph
-```
-
-```
 pip install plotly
 ```
 
-Then you just have to run the python script (grapher.py) with some few arguments on what repository you want to work on. So open a terminal and juste type:
+```
+pip install igraph
+```
+
+Then you just have to run the python script (contribution.py or comment.py) with some few arguments (what repository you want to work on) So juste type:
 
 ```
-python grapher.py yourGithubUserName  userOfRepository  repository  [optional: a directoryOfTheRepository]
+python contribution.py  <yourGithubUserName>  <userOfRepository>  <repository[/directory]>
 ```
 
 for exemple:
 
 ```
-python AlexFabre twbs bootstrap
+python AlexFabre twbs bootstrap/
 ```
 
 A prompt will ask you for your github password to allow you making a the requests via the differents github API's.
