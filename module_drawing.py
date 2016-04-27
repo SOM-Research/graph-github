@@ -64,7 +64,7 @@ for link in data['links']:
 G=ig.Graph(Edges, directed=False)
 
 
-print '----Graph:----\n',G
+print '----Graph:----'
 
 
 ##################################################
@@ -82,6 +82,7 @@ commits_user=[]
 nu=0
 nf=0
 
+print "[info]",
 if max_user_commit==0 and max_file_commit==0:
 	for node in data['nodes']:
 	    if node['type']=='user' and int(node['commits'])>max_user_commit:
@@ -102,8 +103,8 @@ for node in data['nodes']:
     	nf+=1
     	group_file.append(node['group'])
     	commits_file.append((int(node['commits'])*50/max_file_commit)+8)
-
-
+print " ok"
+print "[position]",
 layt=G.layout('kk', dim=3) 
 
 Xnf=[layt[k][0] for k in range(nf)]# x-coordinates of nodes
@@ -123,12 +124,14 @@ for e in Edges:
     Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
     Ze+=[layt[e[0]][2],layt[e[1]][2], None]
 
-
+print " ok"
 
 import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly
 
+print "[draw]"
+print '    links', len(Xe)/3
 trace1=Scatter3d(x=Xe,
                y=Ye,
                z=Ze,
@@ -138,6 +141,7 @@ trace1=Scatter3d(x=Xe,
                text=labels_links,
                hoverinfo='text'
                )
+print '    contributors', len(Xnu)
 trace2=Scatter3d(x=Xnu,
                y=Ynu,
                z=Znu,  
@@ -152,6 +156,7 @@ trace2=Scatter3d(x=Xnu,
                text=labels_user,
                hoverinfo='text'
                )
+print '    files', len(Xnf)
 trace3=Scatter3d(x=Xnf,
                y=Ynf,
                z=Znf,  
@@ -211,3 +216,7 @@ data=Data([trace1, trace2, trace3])
 fig=Figure(data=data, layout=layout)
 
 plotly.offline.plot(fig, filename=org+"-"+repo+".html")
+
+print " ok"
+
+print "[Finished]", execution_time, 'sec'
