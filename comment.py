@@ -11,7 +11,8 @@ if len(sys.argv)<4 or len(sys.argv)>5:
 u=sys.argv[1]
 org=sys.argv[2] # The company name the project belongs to
 repo=sys.argv[3] # The project to analyse
-fileName='comments-'+org+'-'+repo+'.json'file=''
+fileName='comments-'+org+'-'+repo+'.json'
+file=''
 user=''
 max_file_comment=0
 max_user_comment=0
