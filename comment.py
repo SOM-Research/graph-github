@@ -11,8 +11,7 @@ if len(sys.argv)<4 or len(sys.argv)>5:
 u=sys.argv[1]
 org=sys.argv[2] # The company name the project belongs to
 repo=sys.argv[3] # The project to analyse
-fileName='comment'+org+'-'+repo+'.json'
-file=''
+fileName='comments-'+org+'-'+repo+'.json'file=''
 user=''
 max_file_comment=0
 max_user_comment=0
@@ -21,6 +20,7 @@ UnknownUser_id=1 #Will be used to identify a Unknown user
 sh.fileName=fileName
 sh.org=org
 sh.repo=repo
+sh.graph_type='comments'
 
 p=getpass.getpass()
 
@@ -38,24 +38,33 @@ def getUserOnIssue():
     userList={}
     issue_list = gh.issues.list_by_repo(user=org, repo=repo,state='open').all()
     for resource in issue_list:
-        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenter':{esource.user.login:1}, 'comment':0}
+        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
         print resource.number
+
+        if userList.has_key(resource.user.login):
+        	userList[resource.user.login]['comments']+=1
+        else:
+        	userList[resource.user.login]={'comments':1,'login':resource.user.login, 'id':resource.user.id, 'num':0}
         # print resource.user.login
         data=gh.issues.comments.list(number=resource.number, user=org, repo=repo).all()
         for comment in data:
             # print "    ",comment.user.login
-            issueList[resource.number]['comment']+=1
-
-            if issueList[resource.number]['commenter'].has_key(comment.user.login):
-            	issueList[resource.number]['commenter'][comment.user.login]+=1
+            issueList[resource.number]['comments']+=1
+            if issueList[resource.number]['commenters'].has_key(comment.user.login):
+            	issueList[resource.number]['commenters'][comment.user.login]+=1
             else:
-            	issueList[resource.number]['commenter'][comment.user.login]=1
+            	issueList[resource.number]['commenters'][comment.user.login]=1
+
+            if userList.has_key(comment.user.login):
+            	userList[comment.user.login]['comments']+=1
+            else:
+            	userList[comment.user.login]={'comments':1,'login':comment.user.login, 'id':comment.user.id, 'num':0}
+
 
   
-    return issueList
+    return issueList,userList
     
-issueList=getUserOnIssue()
-print issueList
+issueList, userList = getUserOnIssue()
 
 # Giving a single number for the graph drawing to each node according to python's order of dictionary
 nodesNumber=0
@@ -68,46 +77,46 @@ print "[issues]",
 json = open(fileName, "wb+")
 json.write( '{"nodes":[');
 for issue in issueList:
-issueList    if issueList[issue]['comment']>max_file_comment:
-    	max_file_comment=issueList[issue]['commits']
+    issueList[issue]['num']=cpt
+    if issueList[issue]['comments']>max_file_comment:
+    	max_file_comment=issueList[issue]['comments']
     cpt+=1
-    json.write('{"number":"'+issueList[issue]['number']+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comment":"'+str(issueList[issue]['comment'])+'","group":1},')
+    json.write('{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
 print '\033[92m'+" ok"+'\033[0m'
 
 
 print "[commenters]",
 cemaphore=True
-for contributor in contributersList:
-    contributersList[contributor]['num']=cpt
-    if contributersList[contributor]['commits']>max_user_commit:
-    	max_user_commit=contributersList[contributor]['commits']
+for user in userList:
+    userList[user]['num']=cpt
+    if userList[user]['comments']>max_user_comment:
+    	max_user_comment=userList[user]['comments']
     cpt+=1
     if cemaphore:
-        json.write('{"login":"'+contributersList[contributor]['login']+'","num":"'+str(contributersList[contributor]['num'])+'","commits":"'+str(contributersList[contributor]['commits'])+'","name":"'+contributersList[contributor]['name']+'","type":"user","id":"'+str(contributersList[contributor]['id'])+'","group":'+str((contributersList[contributor]['commits']/20)+4)+'}')
+        json.write('{"type":"user","login":"'+userList[user]['login']+'","num":"'+str(userList[user]['num'])+'","comments":"'+str(userList[user]['comments'])+'","id":"'+str(userList[user]['id'])+'","group":'+str((userList[user]['comments']/20)+4)+'}')
         cemaphore=False
     else:
-        json.write(',{"login":"'+contributersList[contributor]['login']+'","num":"'+str(contributersList[contributor]['num'])+'","commits":"'+str(contributersList[contributor]['commits'])+'","name":"'+contributersList[contributor]['name']+'","type":"user","id":"'+str(contributersList[contributor]['id'])+'","group":'+str((contributersList[contributor]['commits']/20)+4)+'}')
+        json.write(',{"type":"user","login":"'+userList[user]['login']+'","num":"'+str(userList[user]['num'])+'","comments":"'+str(userList[user]['comments'])+'","id":"'+str(userList[user]['id'])+'","group":'+str((userList[user]['comments']/20)+4)+'}')
               
 print '\033[92m'+" ok"+'\033[0m'
-
 
 print "[links]",
 json.write('],"links":[')
 cemaphore=True
-for file in commitsPerFile:
-    for committer in commitsPerFile[file]['committers']:
+for issue in issueList:
+    for user in issueList[issue]['commenters']:
         if cemaphore:
-            json.write('{"source":'+str(commitsPerFile[file]['num'])+',"target":'+str(contributersList[committer]['num'])+',"value":'+str(commitsPerFile[file]['committers'][committer])+'}')
+            json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[user]['num'])+',"value":'+str(issueList[issue]['commenters'][user])+'}')
             cemaphore=False
         else:
-            json.write(',{"source":'+str(commitsPerFile[file]['num'])+',"target":'+str(contributersList[committer]['num'])+',"value":'+str(commitsPerFile[file]['committers'][committer])+'}')
+            json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[user]['num'])+',"value":'+str(issueList[issue]['commenters'][user])+'}')
 
 json.write(']}')
 print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-sh.max_user_commit=max_user_commit
-sh.max_file_commit=max_file_commit
+sh.max_user_comment=max_user_comment
+sh.max_file_comment=max_file_comment
 
 import module_3Dgraph

@@ -27,6 +27,7 @@ sh.org=org
 sh.directory=directory
 sh.org=org
 sh.repo=repo
+sh.graph_type='contribution'
 
 
 file=''

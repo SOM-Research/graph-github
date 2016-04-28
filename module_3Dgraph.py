@@ -25,29 +25,32 @@ if __name__ == "__main__":
 
 	f = open(fileName, "rb")
 
-	max_user_commit=0
-	max_file_commit=0
+	max_1=0
+	max_2=0
 
 else:
 
-	import shared_data
+	import shared_data as sh
 
-	fileName=shared_data.fileName
-	t0=shared_data.time
-	org=shared_data.org
-	repo=shared_data.repo
-	directory=shared_data.directory
+	fileName=sh.fileName
+	t0=sh.time
+	org=sh.org
+	repo=sh.repo
+	directory=sh.directory
+  graph_type=sh.graph_type
 
 	f = open(fileName, "rb")
 
-	max_user_commit=shared_data.max_user_commit
-	max_file_commit=shared_data.max_file_commit
-
+	max_1=sh.max_1
+	max_2=sh.max_2
 
 
 data = json.loads(f.read())
 
 print '\033[92m'+" ok"+'\033[0m'
+
+
+print "[info]",
 
 N=len(data['nodes'])
 
@@ -81,13 +84,13 @@ commits_user=[]
 nu=0
 nf=0
 
-print "[info]",
-if max_user_commit==0 and max_file_commit==0:
+
+if max_1==0 and max_2==0:
 	for node in data['nodes']:
-	    if node['type']=='user' and int(node['commits'])>max_user_commit:
-	    	max_user_commit=int(node['commits'])
-	    elif int(node['commits'])>max_file_commit:
-	    	max_file_commit=int(node['commits'])
+	    if node['type']=='user' and int(node['commits'])>max_1:
+	    	max_1=int(node['commits'])
+	    elif int(node['commits'])>max_2:
+	    	max_2=int(node['commits'])
 
 
 
@@ -96,12 +99,12 @@ for node in data['nodes']:
     	labels_user.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
     	nu+=1
     	group_user.append(node['group'])
-    	commits_user.append((int(node['commits'])*80/max_user_commit)+8)
+    	commits_user.append((int(node['commits'])*80/max_1)+8)
     else:
     	labels_file.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
     	nf+=1
     	group_file.append(node['group'])
-    	commits_file.append((int(node['commits'])*50/max_file_commit)+8)
+    	commits_file.append((int(node['commits'])*50/max_2)+8)
 print '\033[92m'+" ok"+'\033[0m'
 print "[position]",
 layt=G.layout('kk', dim=3) 
@@ -182,7 +185,7 @@ axis=dict(showbackground=False,
 execution_time = time.time() - t0
 
 layout = Layout(
-         title="Network of contributors in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-9]+" sec)", 
+         title="Network of contributors in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-8]+" sec)", 
          width=1200,
          height=900,
          showlegend=True,
