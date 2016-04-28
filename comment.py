@@ -32,20 +32,21 @@ from pygithub3 import Github
 gh = Github(login=u, password=p)
 
 def getUserOnIssue():
-    userList={}
+    issueList={}
     issue_list = gh.issues.list_by_repo(user=org, repo=repo,state='open').all()
     for resource in issue_list:
-        userList[resource.number]={'number':resource.number,'author':resource.user.login, 'helpers':{}}
+        issueList[resource.number]={'number':resource.number,'author':resource.user.login, 'commenter':{}, 'comment':0}
         print resource.number
         # print resource.user.login
         data=gh.issues.comments.list(number=resource.number, user=org, repo=repo).all()
         for comment in data:
             # print "    ",comment.user.login
-            userList[resource.number]['helpers'][comment.user.login]=1
-    return userList
+            issueList[resource.number]['comment']+=1
+            issueList[resource.number]['commenter'][comment.user.login]=1
+    return issueList
     
 issueList=getUserOnIssue()
-print userList
+print issueList
 
 quit()
 
@@ -56,13 +57,13 @@ cpt=0 # To attribute each node a unique number for the links of the graph
 
 print '\033[4m'+"----Making json file: "+fileName+" ----"+'\033[0m'
 
-print "[users]",
+print "[issue]",
 json = open(fileName, "wb+")
 json.write( '{"nodes":[');
 for issue in issueList:
     issueList[issue]['num']=cpt
     cpt+=1
-    json.write('{"name":"'+issueList[issue]['name']+'","type":"'+issueList[issue]['type']+'","num":"'+str(issueList[issue]['num'])+'","size":"'+str(issueList[issue]['size'])+'","commits":"'+str(issueList[issue]['commits'])+'","group":1},')
+    json.write('{"number":"'+issueList[issue]['number']+'","author":"'+issueList[issue]['author']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
 print '\033[92m'+" ok"+'\033[0m'
 
 
