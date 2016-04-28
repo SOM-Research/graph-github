@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import time, getpass, sys
 import shared_data as sh
 
@@ -50,6 +50,8 @@ def getUserOnIssue():
             	issueList[resource.number]['commenter'][comment.user.login]+=1
             else:
             	issueList[resource.number]['commenter'][comment.user.login]=1
+
+  
     return issueList
     
 issueList=getUserOnIssue()
