@@ -11,7 +11,7 @@ if len(sys.argv)<4 or len(sys.argv)>5:
 u=sys.argv[1]
 org=sys.argv[2] # The company name the project belongs to
 repo=sys.argv[3] # The project to analyse
-fileName='comments-'+org+'-'+repo+'.json'
+fileName=org+'-'+repo+'(comment).json'
 file=''
 user=''
 max_file_comment=0
@@ -88,16 +88,16 @@ print '\033[92m'+" ok"+'\033[0m'
 
 print "[commenters]",
 cemaphore=True
-for user in userList:
-    userList[user]['num']=cpt
-    if userList[user]['comments']>max_user_comment:
-    	max_user_comment=userList[user]['comments']
+for commenter in userList:
+    userList[commenter]['num']=cpt
+    if userList[commenter]['comments']>max_user_comment:
+    	max_user_comment=userList[commenter]['comments']
     cpt+=1
     if cemaphore:
-        json.write('{"type":"user","login":"'+userList[user]['login']+'","num":"'+str(userList[user]['num'])+'","comments":"'+str(userList[user]['comments'])+'","id":"'+str(userList[user]['id'])+'","group":'+str((userList[user]['comments']/20)+4)+'}')
+        json.write('{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
         cemaphore=False
     else:
-        json.write(',{"type":"user","login":"'+userList[user]['login']+'","num":"'+str(userList[user]['num'])+'","comments":"'+str(userList[user]['comments'])+'","id":"'+str(userList[user]['id'])+'","group":'+str((userList[user]['comments']/20)+4)+'}')
+        json.write(',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
               
 print '\033[92m'+" ok"+'\033[0m'
 
@@ -105,12 +105,12 @@ print "[links]",
 json.write('],"links":[')
 cemaphore=True
 for issue in issueList:
-    for user in issueList[issue]['commenters']:
+    for commenter in issueList[issue]['commenters']:
         if cemaphore:
-            json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[user]['num'])+',"value":'+str(issueList[issue]['commenters'][user])+'}')
+            json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
             cemaphore=False
         else:
-            json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[user]['num'])+',"value":'+str(issueList[issue]['commenters'][user])+'}')
+            json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
 
 json.write(']}')
 print '\033[92m'+" ok"+'\033[0m'

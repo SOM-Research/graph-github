@@ -1,4 +1,4 @@
-graaph_type=''
+graph_type=''
 time=0 # Starting time
 fileName=''
 org=''

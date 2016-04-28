@@ -21,7 +21,10 @@ if __name__ == "__main__":
 	org=temp[0]
 	path=temp[1].split(">",1)
 	repo=path[0]
-	directory=path[1].split('.')[0]
+	temp=path[1].split('.')
+	directory=temp[0]
+	graph_type=temp[1]
+
 
 	f = open(fileName, "rb")
 
@@ -37,7 +40,7 @@ else:
 	org=sh.org
 	repo=sh.repo
 	directory=sh.directory
-  graph_type=sh.graph_type
+	graph_type=sh.graph_type
 
 	f = open(fileName, "rb")
 
@@ -74,37 +77,58 @@ G=ig.Graph(Edges, directed=False)
 # https://plot.ly/python/3d-network-graph/       #
 ##################################################
 
-
-labels_file=[]
-group_file=[]
-commits_file=[]
-labels_user=[]
-group_user=[]
-commits_user=[]
+labels_1=[]
+group_1 =[]
+value_1 =[]
+labels_2 =[]
+group_2 =[]
+value_2 =[]
 nu=0
 nf=0
 
 
-if max_1==0 and max_2==0:
+if graph_type=='contribution':
+	if max_1==0 and max_2==0:
+		for node in data['nodes']:
+		    if node['type']=='user' and int(node['commits'])>max_1:
+		    	max_1=int(node['commits'])
+		    elif int(node['commits'])>max_2:
+		    	max_2=int(node['commits'])
+
 	for node in data['nodes']:
-	    if node['type']=='user' and int(node['commits'])>max_1:
-	    	max_1=int(node['commits'])
-	    elif int(node['commits'])>max_2:
-	    	max_2=int(node['commits'])
+	  if node['type']=='user':
+	  	labels_2.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
+	  	nu+=1
+	  	group_2.append(node['group'])
+	  	value_2.append((int(node['commits'])*80/max_1)+8)
+	  else:
+	  	labels_1.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
+	  	nf+=1
+	  	group_1.append(node['group'])
+	  	value_1.append((int(node['commits'])*50/max_2)+8)
 
 
+elif graph_type=='comments':
+	if max_1==0 and max_2==0:
+		for node in data['nodes']:
+		    if node['type']=='commenter' and int(node['comments'])>max_1:
+		    	max_1=int(node['comments'])
+		    elif int(node['comments'])>max_2:
+		    	max_2=int(node['comments'])
 
-for node in data['nodes']:
-    if node['type']=='user':
-    	labels_user.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
-    	nu+=1
-    	group_user.append(node['group'])
-    	commits_user.append((int(node['commits'])*80/max_1)+8)
-    else:
-    	labels_file.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
-    	nf+=1
-    	group_file.append(node['group'])
-    	commits_file.append((int(node['commits'])*50/max_2)+8)
+	for node in data['nodes']:
+	  if node['type']=='commenter':
+	  	labels_2.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
+	  	nu+=1
+	  	group_2.append(node['group'])
+	  	value_2.append((int(node['comments'])*80/max_1)+8)
+	  else:
+	  	labels_1.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
+	  	nf+=1
+	  	group_1.append(node['group'])
+	  	value_1.append((int(node['comments'])*50/max_2)+8)
+
+
 print '\033[92m'+" ok"+'\033[0m'
 print "[position]",
 layt=G.layout('kk', dim=3) 
@@ -143,34 +167,34 @@ trace1=Scatter3d(x=Xe,
                text=labels_links,
                hoverinfo='text'
                )
-print '    contributors', len(Xnu)
+print '    trace1', len(Xnu)
 trace2=Scatter3d(x=Xnu,
                y=Ynu,
                z=Znu,  
                mode='markers',
                name='Contributors : '+str(nu),
                marker=Marker(symbol='dot',
-                             size=commits_user, 
-                             color=commits_user, 
+                             size=value_2, 
+                             color=value_2, 
                              colorscale='Viridis',
                              line=Line(color='rgb(50,50,50)', width=0.5)
                              ),
-               text=labels_user,
+               text=labels_2,
                hoverinfo='text'
                )
-print '    files', len(Xnf),'\033[0m'
+print '    trace2', len(Xnf),'\033[0m'
 trace3=Scatter3d(x=Xnf,
                y=Ynf,
                z=Znf,  
                mode='markers',
                name='Files : '+str(nf),
                marker=Marker(symbol='square',
-                             size=commits_file, 
-                             color=group_file, 
+                             size=value_1, 
+                             color=group_1, 
                              colorscale='Viridis',
                              line=Line(color='rgb(50,50,50)', width=0.5)
                              ),
-               text=labels_file,
+               text=labels_1,
                hoverinfo='text'
                )
 
@@ -185,7 +209,7 @@ axis=dict(showbackground=False,
 execution_time = time.time() - t0
 
 layout = Layout(
-         title="Network of contributors in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-8]+" sec)", 
+         title="Network of "+graph_type+" in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-8]+" sec)", 
          width=1200,
          height=900,
          showlegend=True,
