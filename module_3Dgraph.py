@@ -88,6 +88,8 @@ nf=0
 
 
 if graph_type=='contribution':
+	type_2='Contributors '
+	type_1='Files '
 	if max_1==0 and max_2==0:
 		for node in data['nodes']:
 		    if node['type']=='user' and int(node['commits'])>max_1:
@@ -109,6 +111,8 @@ if graph_type=='contribution':
 
 
 elif graph_type=='comments':
+	type_2='Participants '
+	type_1='Issues '
 	if max_1==0 and max_2==0:
 		for node in data['nodes']:
 		    if node['type']=='commenter' and int(node['comments'])>max_1:
@@ -172,7 +176,7 @@ trace2=Scatter3d(x=Xnu,
                y=Ynu,
                z=Znu,  
                mode='markers',
-               name='Contributors : '+str(nu),
+               name=type_2+str(nu),
                marker=Marker(symbol='dot',
                              size=value_2, 
                              color=value_2, 
@@ -187,7 +191,7 @@ trace3=Scatter3d(x=Xnf,
                y=Ynf,
                z=Znf,  
                mode='markers',
-               name='Files : '+str(nf),
+               name=type_1+str(nf),
                marker=Marker(symbol='square',
                              size=value_1, 
                              color=group_1, 

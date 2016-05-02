@@ -35,12 +35,13 @@ from pygithub3 import Github
 gh = Github(login=u, password=p)
 
 def getUserOnIssue():
+    print "[*]Getting project issues..."
     issueList={}
     userList={}
     issue_list = gh.issues.list_by_repo(user=org, repo=repo,state='open').all()
     for resource in issue_list:
         issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
-        print resource.number
+        print '    ',resource.number
 
         if userList.has_key(resource.user.login):
         	userList[resource.user.login]['comments']+=1
@@ -62,9 +63,10 @@ def getUserOnIssue():
             	userList[comment.user.login]={'comments':1,'login':comment.user.login, 'id':comment.user.id, 'num':0}
 
 
-  
+    print '\033[92m'+"[Done]"+'\033[0m'
     return issueList,userList
-    
+
+print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/ ----"+'\033[0m'
 issueList, userList = getUserOnIssue()
 
 # Giving a single number for the graph drawing to each node according to python's order of dictionary
