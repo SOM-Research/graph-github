@@ -35,3 +35,10 @@ A prompt will ask you for your github password to allow you making a the request
 
 This is [an example](http://www.alexfabre.com/include/project/twbs-bootstrap.html) of what it should display.  
 
+## What do contain the json file ?
+
+### contribution.py:
+
+
+
+

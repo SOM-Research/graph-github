@@ -67,8 +67,6 @@ for link in data['links']:
 	labels_links.append(link['value'])
 
 
-# Edges=[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
-
 G=ig.Graph(Edges, directed=False)
 
 
