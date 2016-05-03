@@ -161,7 +161,7 @@ nodesNumber=0
 
 cpt=0 # To attribute each node a unique number for the links of the graph
 
-print '\033[4m'+"----Making json file: "+fileName+" ----"+'\033[0m'
+print '\033[4m'+"----Making json file: "+fileName+"----"+'\033[0m'
 
 print "[files]",
 json = open(fileName, "wb+")
