@@ -230,11 +230,9 @@ sh.max_2=max_file_commit
 ##########################
 # Display the 3D graph 1 #
 ##########################
-import module_3Dgraph
+import module_3Dgraph as mod
 
-
-
-
+mod.draw()
 
 
 #########################
@@ -341,10 +339,8 @@ print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-sh.max_user_comment=max_user_comment
-sh.max_file_comment=max_file_comment
+sh.max_1=max_user_comment
+sh.max_2=max_file_comment
 
-import module_3Dgraph
-
-
+mod.draw()
 
