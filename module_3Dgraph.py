@@ -225,6 +225,6 @@ def draw():
 
 	print '\033[92m'+" ok"+'\033[0m'
 
-	print "[Finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
+	print "[terminated]", '\033[95m',execution_time, 'sec'+'\033[0m'
 
 

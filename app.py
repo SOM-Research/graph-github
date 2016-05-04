@@ -3,7 +3,8 @@ import time, getpass, sys
 import json, urllib2
 import shared_data as sh
 
-sh.time = time.time()
+t0=time.time()
+sh.time = t0
 
 if len(sys.argv)!=4:
 	print '\033[91m'+"-------------\nError: expected 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
@@ -18,7 +19,7 @@ org=sys.argv[2] # The company name the project belongs to
 temp=sys.argv[3].split('/',1)
 repo=temp[0] # The project to analyse
 directory=''
-fileName=org+'-'+repo+'.json'
+fileName=org+'-'+repo+'(contribution).json'
 
 if len(temp)>1:
 	directory=temp[1] # Where to make the graph
@@ -136,7 +137,7 @@ def commitersOfFile(contributorsList,repo,file):
             contributorsList[contributor_login]['name']=committer_name.encode('ascii', 'replace')
             contributorsList[contributor_login]['committers'][committer_name.encode('ascii', 'replace')]={'name': committer_name.encode('ascii', 'replace'), 'email':committer_email.encode('ascii', 'replace'), 'message':committer_message.encode('ascii', 'replace'), 'date':commit_date, 'sha': commit_sha}
         else:
-            contributorsList[contributor_login]={'num':0 ,'login': contributor_login.encode('ascii', 'replace'), 'id': contributor_id, 'commits': 1, 'name':committer_name.encode('ascii', 'replace'), 'committers':{}}
+            contributorsList[contributor_login]={'num':0 ,'login': contributor_login.encode('ascii', 'replace'), 'id': contributor_id, 'url': contributor_url, 'commits': 1, 'name':committer_name.encode('ascii', 'replace'), 'committers':{}}
             contributorsList[contributor_login.encode('ascii', 'replace')]['committers'][committer_name.encode('ascii', 'replace')]={'name': committer_name.encode('ascii', 'replace'), 'email':committer_email.encode('ascii', 'replace'), 'message':committer_message.encode('ascii', 'replace'), 'date':commit_date, 'sha': commit_sha}
 
         if fileContributors.has_key(contributor_login):
@@ -169,7 +170,6 @@ repo_content = getContent(directory)
 contributers_list={}
 file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
 
-
 ###################################
 # Making the json file of graph 1 #
 ###################################
@@ -178,7 +178,7 @@ file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_
 # Giving a single number for the graph drawing to each node according to python's order of dictionary
 node_number=0
 
-print '\033[4m'+"----Making json file: "+fileName+"----"+'\033[0m'
+print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
 
 print "[files]",
 json = open(fileName, "wb+")
@@ -284,6 +284,9 @@ def getUserOnIssue():
     return issueList,userList
 
 print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/ ----"+'\033[0m'
+
+
+
 issueList, userList = getUserOnIssue()
 
 
@@ -294,7 +297,7 @@ nodesNumber=0
 
 cpt=0 # To attribute each node a unique number for the links of the graph
 
-print '\033[4m'+"----Making json file: "+fileName+"----"+'\033[0m'
+print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
 
 print "[issues]",
 json = open(fileName, "wb+")
@@ -343,4 +346,57 @@ sh.max_1=max_user_comment
 sh.max_2=max_file_comment
 
 mod.draw()
+
+###################
+# final json file #
+###################
+
+fileName=org+'-'+repo+'.json'
+
+
+print '\033[4m'+"----Making final json file: "+fileName+"----"+'\033[0m'
+
+
+print "[files]",
+json = open(fileName, "wb+")
+json.write( '{"files":[');
+cemaphore=True
+for file in file_list:
+    if cemaphore:
+        json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
+        cemaphore=False
+    else:
+        json.write(',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
+
+    cemaphore=True
+    for contributor in file_list[file]['committers']:
+        if cemaphore:
+            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":"'+str(contributers_list[contributor]['id'])+'","commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            cemaphore=False
+        else:
+            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":"'+str(contributers_list[contributor]['id'])+'","commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+
+        cemaphore=True
+        for committer in contributers_list[contributor]['committers']:
+            if cemaphore:
+                json.write('{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+                cemaphore=False
+            else:
+                json.write(',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+        json.write(']}')
+
+    json.write(']}')
+
+print '\033[92m'+" ok"+'\033[0m'
+
+
+
+json.write(']}')
+print '\033[92m'+" ok"+'\033[0m'
+
+json.close()
+
+execution_time = time.time() - t0
+
+print "[finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
 
