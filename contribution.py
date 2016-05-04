@@ -1,13 +1,12 @@
 ﻿# -*- coding: utf-8 -*-
 import time, getpass, sys
 import json, urllib2
-
 import shared_data as sh
 
 sh.time = time.time()
 
-if len(sys.argv)<4 or len(sys.argv)>5:
-	print '\033[91m'+"-------------\nError: expected at least 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
+if len(sys.argv)!=4:
+	print '\033[91m'+"-------------\nError: expected 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
 	quit()
 
 u=sys.argv[1]
@@ -29,9 +28,6 @@ sh.org=org
 sh.repo=repo
 sh.graph_type='contribution'
 
-
-file=''
-user=''
 max_user_commit=1
 max_file_commit=1
 UnknownUser_id=1 #Will be used to identify a Unknown user
@@ -152,41 +148,39 @@ def commitersOfDirectory(contributorsList,repo,content):
 print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/"+directory+" ----"+'\033[0m'
 
 
-content = getContent(directory)
-contributorsList={}
-commitsPerFile, contributersList = commitersOfDirectory(contributorsList,repo,content)
+repo_content = getContent(directory)
+contributors_list={}
+file_list, contributers_list = commitersOfDirectory(contributors_list,repo,repo_content)
 
 # Giving a single number for the graph drawing to each node according to python's order of dictionary
-nodesNumber=0
-
-cpt=0 # To attribute each node a unique number for the links of the graph
+node_number=0
 
 print '\033[4m'+"----Making json file: "+fileName+"----"+'\033[0m'
 
 print "[files]",
 json = open(fileName, "wb+")
 json.write( '{"nodes":[');
-for file in commitsPerFile:
-    commitsPerFile[file]['num']=cpt
-    if commitsPerFile[file]['commits']>max_file_commit:
-    	max_file_commit=commitsPerFile[file]['commits']
-    cpt+=1
-    json.write('{"name":"'+commitsPerFile[file]['name']+'","type":"'+commitsPerFile[file]['type']+'","num":"'+str(commitsPerFile[file]['num'])+'","size":"'+str(commitsPerFile[file]['size'])+'","commits":"'+str(commitsPerFile[file]['commits'])+'","group":1},')
+for file in file_list:
+    file_list[file]['num']=node_number
+    if file_list[file]['commits']>max_file_commit:
+    	max_file_commit=file_list[file]['commits']
+    node_number+=1
+    json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},')
 print '\033[92m'+" ok"+'\033[0m'
 
 
 print "[contributors]",
 cemaphore=True
-for contributor in contributersList:
-    contributersList[contributor]['num']=cpt
-    if contributersList[contributor]['commits']>max_user_commit:
-    	max_user_commit=contributersList[contributor]['commits']
-    cpt+=1
+for contributor in contributers_list:
+    contributers_list[contributor]['num']=node_number
+    if contributers_list[contributor]['commits']>max_user_commit:
+    	max_user_commit=contributers_list[contributor]['commits']
+    node_number+=1
     if cemaphore:
-        json.write('{"login":"'+contributersList[contributor]['login']+'","num":"'+str(contributersList[contributor]['num'])+'","commits":"'+str(contributersList[contributor]['commits'])+'","name":"'+contributersList[contributor]['name']+'","type":"user","id":"'+str(contributersList[contributor]['id'])+'","group":'+str((contributersList[contributor]['commits']/20)+4)+'}')
+        json.write('{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
         cemaphore=False
     else:
-        json.write(',{"login":"'+contributersList[contributor]['login']+'","num":"'+str(contributersList[contributor]['num'])+'","commits":"'+str(contributersList[contributor]['commits'])+'","name":"'+contributersList[contributor]['name']+'","type":"user","id":"'+str(contributersList[contributor]['id'])+'","group":'+str((contributersList[contributor]['commits']/20)+4)+'}')
+        json.write(',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
               
 print '\033[92m'+" ok"+'\033[0m'
 
@@ -194,20 +188,20 @@ print '\033[92m'+" ok"+'\033[0m'
 print "[links]",
 json.write('],"links":[')
 cemaphore=True
-for file in commitsPerFile:
-    for committer in commitsPerFile[file]['committers']:
+for file in file_list:
+    for committer in file_list[file]['committers']:
         if cemaphore:
-            json.write('{"source":'+str(commitsPerFile[file]['num'])+',"target":'+str(contributersList[committer]['num'])+',"value":'+str(commitsPerFile[file]['committers'][committer])+'}')
+            json.write('{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
             cemaphore=False
         else:
-            json.write(',{"source":'+str(commitsPerFile[file]['num'])+',"target":'+str(contributersList[committer]['num'])+',"value":'+str(commitsPerFile[file]['committers'][committer])+'}')
+            json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
 
 json.write(']}')
 print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-sh.max_user_commit=max_user_commit
-sh.max_file_commit=max_file_commit
+sh.max_1=max_user_commit
+sh.max_2=max_file_commit
 
 import module_3Dgraph
