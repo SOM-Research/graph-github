@@ -257,7 +257,7 @@ def getUserOnIssue():
     userList={}
     issue_list = gh.issues.list_by_repo(user=org, repo=repo,state='open').all()
     for resource in issue_list:
-        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
+        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':1, 'num':0}
         print '    ',resource.number
 
         if userList.has_key(resource.user.login):
@@ -288,7 +288,6 @@ print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/ ----"+'\033[0m'
 
 
 issueList, userList = getUserOnIssue()
-
 
 
 
@@ -371,25 +370,48 @@ for file in file_list:
     cemaphore=True
     for contributor in file_list[file]['committers']:
         if cemaphore:
-            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":"'+str(contributers_list[contributor]['id'])+'","commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
             cemaphore=False
         else:
-            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":"'+str(contributers_list[contributor]['id'])+'","commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
 
         cemaphore=True
         for committer in contributers_list[contributor]['committers']:
             if cemaphore:
                 json.write('{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
                 cemaphore=False
+                
             else:
                 json.write(',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
         json.write(']}')
-
     json.write(']}')
+    
+
 
 print '\033[92m'+" ok"+'\033[0m'
 
 
+print "[issues]",
+json.write( '],"issues":[');
+cemaphore=True
+for issue in issueList:
+  #  issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
+
+  #  userList[resource.user.login]={'comments':1,'login':resource.user.login, 'id':resource.user.id, 'num':0}
+    if cemaphore:
+        json.write('{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+        cemaphore=False
+    else:
+        json.write(',{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+
+    cemaphore=True
+    for commenter in issueList[issue]['commenters']:
+        if cemaphore:
+            json.write('{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
+            cemaphore=False
+        else:
+            json.write(',{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
+    json.write(']}')
 
 json.write(']}')
 print '\033[92m'+" ok"+'\033[0m'
