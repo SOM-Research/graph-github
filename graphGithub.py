@@ -3,6 +3,8 @@ import time, getpass, sys
 import json, urllib2
 import shared_data as sh
 
+#ok
+
 t0=time.time()
 sh.time = t0
 
