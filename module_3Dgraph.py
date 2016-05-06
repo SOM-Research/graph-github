@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from igraph import *
 import igraph as ig
+from igraph import *
 import json, urllib2
 import time
 import shared_data as sh
@@ -8,8 +8,6 @@ import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly
 import cairocffi as cairo
-
-#ok
 
 def draw():
 
@@ -54,9 +52,11 @@ def draw():
 
 	G=ig.Graph(Edges, directed=False)
 
+	
 	layout = G.layout("kk")
 
 	plot(G, layout = layout)
+
 
 	##################################################
 	# All the graph documentation on plotly web page #

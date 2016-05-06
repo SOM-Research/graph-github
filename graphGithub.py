@@ -3,8 +3,6 @@ import time, getpass, sys
 import json, urllib2
 import shared_data as sh
 
-#ok
-
 t0=time.time()
 sh.time = t0
 
@@ -259,7 +257,7 @@ def getUserOnIssue():
     userList={}
     issue_list = gh.issues.list_by_repo(user=org, repo=repo,state='open').all()
     for resource in issue_list:
-        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':1, 'num':0}
+        issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
         print '    ',resource.number
 
         if userList.has_key(resource.user.login):
@@ -290,6 +288,7 @@ print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/ ----"+'\033[0m'
 
 
 issueList, userList = getUserOnIssue()
+
 
 
 
