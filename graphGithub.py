@@ -352,7 +352,7 @@ mod.draw(argument)
 ###################
 
 fileName=org+'-'+repo+'.json'
-
+sh.fileName=fileName
 
 print '\033[4m'+"----Making final json file: "+fileName+"----"+'\033[0m'
 

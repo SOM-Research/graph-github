@@ -27,8 +27,6 @@ def draw(argument):
 	max_1=sh.max_1
 	max_2=sh.max_2
 
-	# f = open(fileName, "rb")
-	# data = json.loads(f.read())
 	data = json.loads(argument)
 
 	print '\033[92m'+" ok"+'\033[0m'
