@@ -9,6 +9,8 @@ from plotly.graph_objs import *
 import plotly
 import cairocffi as cairo
 
+#ok
+
 def draw():
 
 	print '\033[4m'+'----Graph:----'+'\033[0m'
