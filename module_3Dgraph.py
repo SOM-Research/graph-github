@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from igraph import *
 import igraph as ig
 import json, urllib2
 import time
@@ -53,9 +54,8 @@ def draw():
 
 	layout = G.layout("kk")
 
-	plot(g, layout = layout)
+	plot(G, layout = layout)
 
-	quit()
 	##################################################
 	# All the graph documentation on plotly web page #
 	# https://plot.ly/python/3d-network-graph/       #
