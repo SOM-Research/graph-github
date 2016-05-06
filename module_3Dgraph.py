@@ -9,7 +9,7 @@ from plotly.graph_objs import *
 import plotly
 import cairocffi as cairo
 
-def draw():
+def draw(argument):
 
 	print '\033[4m'+'----Graph:----'+'\033[0m'
 
@@ -24,13 +24,12 @@ def draw():
 	directory=sh.directory
 	graph_type=sh.graph_type
 
-	f = open(fileName, "rb")
-
 	max_1=sh.max_1
 	max_2=sh.max_2
 
-
-	data = json.loads(f.read())
+	# f = open(fileName, "rb")
+	# data = json.loads(f.read())
+	data = json.loads(argument)
 
 	print '\033[92m'+" ok"+'\033[0m'
 

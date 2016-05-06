@@ -7,7 +7,7 @@ t0=time.time()
 sh.time = t0
 
 if len(sys.argv)!=4:
-	print '\033[91m'+"-------------\nError: expected 3 arguments, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
+	print '\033[91m'+"-------------\nError: expected 3 argument, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
 	quit()
 
 
@@ -181,14 +181,16 @@ node_number=0
 print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
 
 print "[files]",
-json = open(fileName, "wb+")
-json.write( '{"nodes":[');
+# json = open(fileName, "wb+")
+argument=''
+# json.write('{"nodes":[');
+argument=argument+'{"nodes":['
 for file in file_list:
     file_list[file]['num']=node_number
     if file_list[file]['commits']>max_file_commit:
     	max_file_commit=file_list[file]['commits']
     node_number+=1
-    json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},')
+    argument=argument+'{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},'
 print '\033[92m'+" ok"+'\033[0m'
 
 
@@ -200,29 +202,28 @@ for contributor in contributers_list:
     	max_user_commit=contributers_list[contributor]['commits']
     node_number+=1
     if cemaphore:
-        json.write('{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
+        argument=argument+'{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}'
         cemaphore=False
     else:
-        json.write(',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
+        argument=argument+',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}'
               
 print '\033[92m'+" ok"+'\033[0m'
 
 
 print "[links]",
-json.write('],"links":[')
+argument=argument+'],"links":['
 cemaphore=True
 for file in file_list:
     for committer in file_list[file]['committers']:
         if cemaphore:
-            json.write('{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+            argument=argument+'{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}'
             cemaphore=False
         else:
-            json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+            argument=argument+',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}'
 
-json.write(']}')
+argument=argument+']}'
 print '\033[92m'+" ok"+'\033[0m'
 
-json.close()
 
 sh.max_1=max_user_commit
 sh.max_2=max_file_commit
@@ -232,7 +233,7 @@ sh.max_2=max_file_commit
 ##########################
 import module_3Dgraph as mod
 
-mod.draw()
+mod.draw(argument)
 
 
 #########################
@@ -300,14 +301,14 @@ cpt=0 # To attribute each node a unique number for the links of the graph
 print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
 
 print "[issues]",
-json = open(fileName, "wb+")
-json.write( '{"nodes":[');
+argument=''
+argument=argument+ '{"nodes":[';
 for issue in issueList:
     issueList[issue]['num']=cpt
     if issueList[issue]['comments']>max_file_comment:
         max_file_comment=issueList[issue]['comments']
     cpt+=1
-    json.write('{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
+    argument=argument+'{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},'
 print '\033[92m'+" ok"+'\033[0m'
 
 
@@ -319,33 +320,32 @@ for commenter in userList:
         max_user_comment=userList[commenter]['comments']
     cpt+=1
     if cemaphore:
-        json.write('{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
+        argument=argument+'{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}'
         cemaphore=False
     else:
-        json.write(',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
+        argument=argument+',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}'
               
 print '\033[92m'+" ok"+'\033[0m'
 
 print "[links]",
-json.write('],"links":[')
+argument=argument+'],"links":['
 cemaphore=True
 for issue in issueList:
     for commenter in issueList[issue]['commenters']:
         if cemaphore:
-            json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+            argument=argument+'{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}'
             cemaphore=False
         else:
-            json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+            argument=argument+',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}'
 
-json.write(']}')
+argument=argument+']}'
 print '\033[92m'+" ok"+'\033[0m'
 
-json.close()
 
 sh.max_1=max_user_comment
 sh.max_2=max_file_comment
 
-mod.draw()
+mod.draw(argument)
 
 ###################
 # final json file #
