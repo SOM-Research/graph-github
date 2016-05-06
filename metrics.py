@@ -40,25 +40,35 @@ fileName='twbs-bootlint.json'
 f = open(fileName, "rb")
 data = json.loads(f.read())
 
-
+commiter_list={}
 Edges=[]
+num=0
 for file in data['files']:
 	cemaphore=True
 	logins=[]
 	for commiter in file['commiters']:
+		if commiter_list.has_key(commiter['login']):
+			pass
+		else:
+			commiter_list[commiter['login']]=num
+			num+=1
 		if cemaphore:
-			# it's the first committer nothing to do, jsut remeber his login
-			logins.append(commiter['id'])
+			# it's the first committer nothing to do, just remeber his login
+			# logins.append(int(commiter['num'].encode('ascii', 'ignore')))
+			logins.append(commiter_list[commiter['login']])
 			cemaphore=False
 		else:
 			for x in xrange(0,len(logins)):
-				Edges.append((commiter['id'],logins[x]))
+				Edges.append((commiter_list[commiter['login']],logins[x]))
+	
 	# Edges.append((link['source'], link['target']))
 
 print Edges
 
 G=ig.Graph(Edges, directed=False)
 
+# for user in commiter_list:
+# 	G.vs["name"].append(user[name])
 
 layout = G.layout("kk")
 

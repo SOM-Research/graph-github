@@ -356,6 +356,8 @@ sh.fileName=fileName
 
 print '\033[4m'+"----Making final json file: "+fileName+"----"+'\033[0m'
 
+num=0
+# Here we have to make a unique number for each participant
 
 print "[files]",
 json = open(fileName, "wb+")
@@ -371,10 +373,11 @@ for file in file_list:
     cemaphore=True
     for contributor in file_list[file]['committers']:
         if cemaphore:
-            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
             cemaphore=False
         else:
-            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+        num+=1
 
         cemaphore=True
         for committer in contributers_list[contributor]['committers']:
@@ -396,9 +399,6 @@ print "[issues]",
 json.write( '],"issues":[');
 cemaphore=True
 for issue in issueList:
-  #  issueList[resource.number]={'number':resource.number,'author':resource.user.login,'state':resource.state, 'commenters':{resource.user.login:1}, 'comments':0, 'num':0}
-
-  #  userList[resource.user.login]={'comments':1,'login':resource.user.login, 'id':resource.user.id, 'num':0}
     if cemaphore:
         json.write('{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
         cemaphore=False
