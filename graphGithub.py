@@ -241,8 +241,8 @@ mod.draw(argument)
 #########################
 
 fileName=org+'-'+repo+'(comment).json'
-max_file_comment=0
-max_user_comment=0
+max_file_comment=1
+max_user_comment=1
 sh.fileName=fileName
 sh.graph_type='comments'
 
@@ -422,4 +422,8 @@ json.close()
 execution_time = time.time() - t0
 
 print "[finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
+
+import metric as m 
+
+m.contribution(fileName)
 

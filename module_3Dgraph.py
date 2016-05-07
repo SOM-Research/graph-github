@@ -49,11 +49,6 @@ def draw(argument):
 
 	G=ig.Graph(Edges, directed=False)
 
-	
-	layout = G.layout("kk")
-
-	plot(G, layout = layout)
-
 
 	##################################################
 	# All the graph documentation on plotly web page #
