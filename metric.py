@@ -14,47 +14,44 @@ def contribution(file):
 
 	commiter_list={}
 	name_list=[]
-	Edges=[]
+	Edges={}
 	num=0
 	for file in data['files']:
-		# print file['name']
 		cemaphore=True
-		logins=[]
+		file_list={}
 		for commiter in file['commiters']:
 			if commiter_list.has_key(commiter['login']):
 				pass
-				# print '('+commiter['login']+' already in list)'
 			else:
 				commiter_list[commiter['login']]=num
 				name_list.append(commiter['login'])
-				# print '('+commiter['login']+' added to the list) '+str(num)
 				num+=1
 			if cemaphore:
-				logins.append(commiter_list[commiter['login']])
-				# print '    '+commiter['login']+' added '+str(commiter_list[commiter['login']])
+				file_list[commiter['login']]=commiter_list[commiter['login']]
 				cemaphore=False
 			else:
-				for x in xrange(0,len(logins)):
-					Edges.append((commiter_list[commiter['login']],logins[x]))
-					# print commiter_list[commiter['login']],logins[x]
-					logins.append(commiter_list[commiter['login']])
-					# print '    '+commiter['login']+' added '+str(commiter_list[commiter['login']])
+				for login in file_list:
+					Edges[(commiter_list[commiter['login']],file_list[login])]={'one':commiter_list[commiter['login']],'two':file_list[login],'size':1}
+				file_list[commiter['login']]=commiter_list[commiter['login']]
 
+	table=[]
+	for couple in Edges:
+		table.append((Edges[couple]['one'],Edges[couple]['two']))
 
-	Graph=ig.Graph(Edges, directed=False)
+	Graph=ig.Graph(table, directed=False)
 
 	Graph.vs["name"] = name_list
 
-	layout = Graph.layout("kk")
+	# layout = Graph.layout("kk")
 
 	visual_style = {}
 	visual_style["vertex_size"] = 20
 	visual_style["vertex_label"] = Graph.vs["name"]
-	visual_style["layout"] = layout
-	visual_style["bbox"] = (3200, 3200)
-	visual_style["margin"] = 400
+	visual_style["layout"] = "kk"
+	visual_style["bbox"] = (800, 800)
+	visual_style["margin"] = 80
 
-	plot(Graph, 'graph.png', **visual_style)
+	plot(Graph, 'graph.svg', **visual_style)
 
 
 
