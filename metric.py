@@ -48,10 +48,10 @@ def contribution(file):
 	visual_style["vertex_size"] = 20
 	visual_style["vertex_label"] = Graph.vs["name"]
 	visual_style["layout"] = "kk"
-	visual_style["bbox"] = (800, 800)
-	visual_style["margin"] = 80
+	visual_style["bbox"] = (3000, 3000)
+	visual_style["margin"] = 300
 
-	plot(Graph, 'graph.svg', **visual_style)
+	plot(Graph, 'graph.png', **visual_style)
 
 
 

@@ -9,7 +9,7 @@ from plotly.graph_objs import *
 import plotly
 import cairocffi as cairo
 
-def draw(argument):
+def draw(file):
 
 	print '\033[4m'+'----Graph:----'+'\033[0m'
 
@@ -27,7 +27,7 @@ def draw(argument):
 	max_1=sh.max_1
 	max_2=sh.max_2
 
-	data = json.loads(argument)
+	data = json.loads(file)
 
 	print '\033[92m'+" ok"+'\033[0m'
 
@@ -226,4 +226,14 @@ def draw(argument):
 
 	print "[terminated]", '\033[95m',execution_time, 'sec'+'\033[0m'
 
+
+if __name__ == "__main__":
+
+	if len(sys.argv)!=2:
+		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
+		quit()
+
+	file=sys.argv[1]
+
+	draw(file)
 
