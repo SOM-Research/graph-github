@@ -47,26 +47,28 @@ def contribution(file):
 
 	Graph=ig.Graph(table, directed=False)
 
-	Graph.vs["name"] = name_list
+	visual=True
 
-	# layout = Graph.layout("kk")
-	wi=10000
+	if visual:
 
-	visual_style = {}
-	visual_style["vertex_size"] = 20
-	visual_style["vertex_label"] = Graph.vs["name"]
-	visual_style["layout"] = "kk"
-	visual_style["bbox"] = (wi, wi)
-	visual_style["margin"] = (wi/10)
+		Graph.vs["name"] = name_list
 
-	plot(Graph, 'graph.png', **visual_style)
+		# layout = Graph.layout("kk")
+		wi=1000
 
+		visual_style = {}
+		visual_style["vertex_size"] = 20
+		visual_style["vertex_label"] = Graph.vs["name"]
+		visual_style["layout"] = "kk"
+		visual_style["bbox"] = (wi, wi)
+		visual_style["margin"] = (wi/10)
 
+		plot(Graph, 'graph.png', **visual_style)
 
 if __name__ == "__main__":
 
 	if len(sys.argv)!=2:
-		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
+		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>  [option -c <contribution> -t <comments>]\n-------------"+'\033[0m'
 		quit()
 
 	file=sys.argv[1]

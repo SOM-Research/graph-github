@@ -3,6 +3,12 @@ import time, getpass, sys
 import json, urllib2
 import shared_data as sh
 
+
+
+
+
+# if __name__ == "__main__":
+
 t0=time.time()
 sh.time = t0
 
@@ -93,6 +99,7 @@ def getContent(directory):
 ######################################
 # Python Github API
 from pygithub3 import Github
+# gh = Github()
 gh = Github(login=u, password=p)
 sh.gh=gh
 def commitersOfFile(contributorsList,repo,file):
@@ -230,6 +237,7 @@ sh.max_2=max_file_commit
 ##########################
 # Display the 3D graph 1 #
 ##########################
+
 import module_3Dgraph as mod
 
 mod.draw(fileName)
@@ -419,11 +427,14 @@ print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-execution_time = time.time() - t0
-
-print "[finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
-
 import metric as m 
 
 m.contribution(fileName)
+# m.comments(fileName)
+
+execution_time = time.time() - t0
+print "[finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
+
+
+
 
