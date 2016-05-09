@@ -227,13 +227,3 @@ def draw(file):
 	print "[terminated]", '\033[95m',execution_time, 'sec'+'\033[0m'
 
 
-if __name__ == "__main__":
-
-	if len(sys.argv)!=2:
-		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
-		quit()
-
-	file=sys.argv[1]
-
-	draw(file)
-
