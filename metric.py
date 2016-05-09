@@ -31,7 +31,14 @@ def contribution(file):
 				cemaphore=False
 			else:
 				for login in file_list:
-					Edges[(commiter_list[commiter['login']],file_list[login])]={'one':commiter_list[commiter['login']],'two':file_list[login],'size':1}
+					if commiter_list[commiter['login']]<file_list[login]:
+						one=commiter_list[commiter['login']]
+						two=file_list[login]
+					else:
+						one=file_list[login]
+						two=commiter_list[commiter['login']]
+
+					Edges[(one,two)]={'one':one,'two':two,'size':1}
 				file_list[commiter['login']]=commiter_list[commiter['login']]
 
 	table=[]
@@ -43,13 +50,14 @@ def contribution(file):
 	Graph.vs["name"] = name_list
 
 	# layout = Graph.layout("kk")
+	wi=10000
 
 	visual_style = {}
 	visual_style["vertex_size"] = 20
 	visual_style["vertex_label"] = Graph.vs["name"]
 	visual_style["layout"] = "kk"
-	visual_style["bbox"] = (3000, 3000)
-	visual_style["margin"] = 300
+	visual_style["bbox"] = (wi, wi)
+	visual_style["margin"] = (wi/10)
 
 	plot(Graph, 'graph.png', **visual_style)
 
