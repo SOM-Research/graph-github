@@ -16,7 +16,6 @@ def draw(file):
 	print "[parsing json]",
 
 	data = []
-
 	fileName=sh.fileName
 	t0=sh.time
 	org=sh.org
@@ -27,7 +26,8 @@ def draw(file):
 	max_1=sh.max_1
 	max_2=sh.max_2
 
-	data = json.loads(file)
+	f = open(file, "rb")
+	data = json.loads(f.read())
 
 	print '\033[92m'+" ok"+'\033[0m'
 
@@ -220,7 +220,7 @@ def draw(file):
 	data=Data([trace1, trace2, trace3])
 	fig=Figure(data=data, layout=layout)
 
-	plotly.offline.plot(fig, filename=fileName[:-5]+".html")
+	plotly.offline.plot(fig, filename=file[:-5]+".html")
 
 	print '\033[92m'+" ok"+'\033[0m'
 
