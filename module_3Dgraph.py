@@ -204,16 +204,20 @@ def draw(file):
 	data=Data([trace1, trace2, trace3])
 	fig=Figure(data=data, layout=layout)
 	
-	##############################
-	# send data and layout to JS #
-	##############################
-
-
-	plotly.offline.plot(fig, filename=file[:-5]+".html")
 
 	print '\033[92m'+" ok"+'\033[0m'
 
 	print "[terminated]", '\033[0m'
+
+	##############################
+	# send data and layout to JS #
+	##############################
+
+	return layout, data
+
+	# plotly.offline.plot(fig, filename=file[:-5]+".html")
+
+
 	
 if __name__ == "__main__":
 

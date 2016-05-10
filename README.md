@@ -22,13 +22,13 @@ pip install igraph
 Then you just have to run the python script (contribution.py or comment.py) with some few arguments (what repository you want to work on) So juste type:
 
 ```
-python contribution.py  <yourGithubUserName>  <userOfRepository>  <repository[/directory]>
+python graphGithub.py  <yourGithubUserName>  <userOfRepository>  <repository[/directory]>
 ```
 
 for exemple:
 
 ```
-python AlexFabre twbs bootstrap/
+python graphGithub.py AlexFabre twbs bootstrap/
 ```
 
 A prompt will ask you for your github password to allow you making a the requests via the differents github API's.

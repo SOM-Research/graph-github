@@ -48,7 +48,7 @@ def contribution(file):
 
 	Graph=ig.Graph(table, directed=False)
 
-	visual=False
+	visual=True
 
 	if visual:
 
@@ -65,6 +65,7 @@ def contribution(file):
 		visual_style["margin"] = (wi/10)
 
 		plot(Graph, fileName, **visual_style)
+	
 
 if __name__ == "__main__":
 

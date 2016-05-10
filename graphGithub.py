@@ -1,41 +1,9 @@
 ﻿# -*- coding: utf-8 -*-
 import getpass, sys
 import json, urllib2
-
-
-
-
-
-# if __name__ == "__main__":
-
-
-if len(sys.argv)!=4:
-	print '\033[91m'+"-------------\nError: expected 3 argument, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
-	quit()
-
-
-#######################################
-# Prepare all the infos and variables #
-#######################################
-u=sys.argv[1]
-org=sys.argv[2] # The company name the project belongs to
-temp=sys.argv[3].split('/',1)
-repo=temp[0] # The project to analyse
-directory=''
-fileName=org+'-'+repo+'.contribution.json'
-
-if len(temp)>1:
-	directory=temp[1] # Where to make the graph
-	fileName=org+'-'+repo+'>'+directory+'.json'
-
-max_user_commit=1
-max_file_commit=1
-UnknownUser_id=1 #Will be used to identify a Unknown user
-
-
-p=getpass.getpass()
-print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/"+directory+" ----"+'\033[0m'
-
+from pygithub3 import Github
+import module_3Dgraph as mod
+import metric as m 
 
 
 #########################################################
@@ -70,6 +38,7 @@ def sendRequest(url):
 # To get the repository content #
 #################################
 def getContent(directory):
+    print '\033[4m'+"----Collecting contribution data: /"+org+'/'+repo+"/"+directory+" ----"+'\033[0m'
     print "[*]Getting project content..."
     url='https://api.github.com/repos/'+org+'/'+repo+'/contents/'+directory+'/'
     data = sendRequest(url)
@@ -86,12 +55,11 @@ def getContent(directory):
 # To get all the contributors of a   #
 # file and their number of commits   #
 ######################################
-# Python Github API
-from pygithub3 import Github
-# gh = Github()
-gh = Github(login=u, password=p)
+
 
 def commitersOfFile(contributorsList,repo,file):
+
+    UnknownUser_id=1 #Will be used to identify a Unknown user
 
     # This URL shows what iformation can be get about commits (email addresses, etc...)
     # curl -i -u AlexFabre https://api.github.com/repos/twbs/grunt-bootlint/commits/ae31bb28f74b306437ca6cb34662935c3910434e
@@ -156,87 +124,71 @@ def commitersOfDirectory(contributorsList,repo,content):
         fileList[content[file]['name']]['commits'], contributorsList, fileList[content[file]['name']]['committers']=(commitersOfFile(contributorsList,repo,content[file]['name']))
     print '\033[92m'+"[Done]"+'\033[95m', str(len(contributorsList))+' contributors'+'\033[0m'
     return fileList, contributorsList
-        
 
-
-################
-# ----main---- #
-################
-repo_content = getContent(directory)
-contributers_list={}
-file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
 
 ###################################
 # Making the json file of graph 1 #
 ###################################
+def makeContribution(file_list,contributers_list):
+
+    max_file_commit=1
+    max_user_commit=1
+    # Giving a single number for the graph drawing to each node according to python's order of dictionary
+    node_number=0
+
+    print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
+
+    print "[files]",
+    json = open(fileName, "wb+")
+    json.write( '{"type":"contribution","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
+    for file in file_list:
+        file_list[file]['num']=node_number
+        if file_list[file]['commits']>max_file_commit:
+        	max_file_commit=file_list[file]['commits']
+        node_number+=1
+        json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},')
+    print '\033[92m'+" ok"+'\033[0m'
 
 
-# Giving a single number for the graph drawing to each node according to python's order of dictionary
-node_number=0
-
-print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
-
-print "[files]",
-json = open(fileName, "wb+")
-json.write( '{"type":"contribution","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
-for file in file_list:
-    file_list[file]['num']=node_number
-    if file_list[file]['commits']>max_file_commit:
-    	max_file_commit=file_list[file]['commits']
-    node_number+=1
-    json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},')
-print '\033[92m'+" ok"+'\033[0m'
-
-
-print "[contributors]",
-cemaphore=True
-for contributor in contributers_list:
-    contributers_list[contributor]['num']=node_number
-    if contributers_list[contributor]['commits']>max_user_commit:
-    	max_user_commit=contributers_list[contributor]['commits']
-    node_number+=1
-    if cemaphore:
-        json.write('{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
-        cemaphore=False
-    else:
-        json.write(',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
-              
-print '\033[92m'+" ok"+'\033[0m'
-
-
-print "[links]",
-json.write('],"links":[')
-cemaphore=True
-for file in file_list:
-    for committer in file_list[file]['committers']:
+    print "[contributors]",
+    cemaphore=True
+    for contributor in contributers_list:
+        contributers_list[contributor]['num']=node_number
+        if contributers_list[contributor]['commits']>max_user_commit:
+        	max_user_commit=contributers_list[contributor]['commits']
+        node_number+=1
         if cemaphore:
-            json.write('{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+            json.write('{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
             cemaphore=False
         else:
-            json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
-
-json.write('],"max1":'+str(max_user_commit)+',"max2":'+str(max_file_commit)+'}')
-print '\033[92m'+" ok"+'\033[0m'
-
-json.close()
+            json.write(',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
+                  
+    print '\033[92m'+" ok"+'\033[0m'
 
 
-##########################
-# Display the 3D graph 1 #
-##########################
+    print "[links]",
+    json.write('],"links":[')
+    cemaphore=True
+    for file in file_list:
+        for committer in file_list[file]['committers']:
+            if cemaphore:
+                json.write('{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+                cemaphore=False
+            else:
+                json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
 
-import module_3Dgraph as mod
+    json.write('],"max1":'+str(max_user_commit)+',"max2":'+str(max_file_commit)+'}')
+    print '\033[92m'+" ok"+'\033[0m'
 
-mod.draw(fileName)
+    json.close()
 
 
-#########################
-# Graph of the comments #
-#########################
+    ##########################
+    # Display the 3D graph 1 #
+    ##########################
 
-fileName=org+'-'+repo+'.comment.json'
-max_file_comment=1
-max_user_comment=1
+    layout, data=mod.draw(fileName)
+    return layout, data
 
 
 ######################################
@@ -245,6 +197,7 @@ max_user_comment=1
 ######################################
 # Python Github API
 def getUserOnIssue():
+    print '\033[4m'+"----Collecting issue data: /"+org+'/'+repo+"/ ----"+'\033[0m'
     print "[*]Getting project issues..."
     issueList={}
     userList={}
@@ -274,145 +227,250 @@ def getUserOnIssue():
 
 
     print '\033[92m'+"[Done]"+'\033[0m'
+    
     return issueList,userList
 
-print '\033[4m'+"----Collecting data: /"+org+'/'+repo+"/ ----"+'\033[0m'
 
 
-
-issueList, userList = getUserOnIssue()
-
+def makeComments(issueList,userList):
 
 
+    #########################
+    # Graph of the comments #
+    #########################
 
-# Giving a single number for the graph drawing to each node according to python's order of dictionary
-nodesNumber=0
-
-cpt=0 # To attribute each node a unique number for the links of the graph
-
-print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
-
-print "[issues]",
-json = open(fileName, "wb+")
-json.write( '{"type":"comments","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
-for issue in issueList:
-    issueList[issue]['num']=cpt
-    if issueList[issue]['comments']>max_file_comment:
-        max_file_comment=issueList[issue]['comments']
-    cpt+=1
-    json.write('{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
-print '\033[92m'+" ok"+'\033[0m'
+    fileName=org+'-'+repo+'.comment.json'
+    max_file_comment=1
+    max_user_comment=1
 
 
-print "[commenters]",
-cemaphore=True
-for commenter in userList:
-    userList[commenter]['num']=cpt
-    if userList[commenter]['comments']>max_user_comment:
-        max_user_comment=userList[commenter]['comments']
-    cpt+=1
-    if cemaphore:
-        json.write('{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
-        cemaphore=False
-    else:
-        json.write(',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
-              
-print '\033[92m'+" ok"+'\033[0m'
+    # Giving a single number for the graph drawing to each node according to python's order of dictionary
+    nodesNumber=0
 
-print "[links]",
-json.write('],"links":[')
-cemaphore=True
-for issue in issueList:
-    for commenter in issueList[issue]['commenters']:
-        if cemaphore:
-            json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
-            cemaphore=False
-        else:
-            json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+    cpt=0 # To attribute each node a unique number for the links of the graph
 
-json.write('],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}')
-print '\033[92m'+" ok"+'\033[0m'
+    print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
 
-json.close()
+    print "[issues]",
+    json = open(fileName, "wb+")
+    json.write( '{"type":"comments","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
+    for issue in issueList:
+        issueList[issue]['num']=cpt
+        if issueList[issue]['comments']>max_file_comment:
+            max_file_comment=issueList[issue]['comments']
+        cpt+=1
+        json.write('{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
+    print '\033[92m'+" ok"+'\033[0m'
 
 
-mod.draw(fileName)
-
-###################
-# final json file #
-###################
-
-fileName=org+'-'+repo+'.json'
-
-print '\033[4m'+"----Making final json file: "+fileName+"----"+'\033[0m'
-
-num=0
-# Here we have to make a unique number for each participant
-
-print "[files]",
-json = open(fileName, "wb+")
-json.write( '{"organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","files":[');
-cemaphore=True
-for file in file_list:
-    if cemaphore:
-        json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
-        cemaphore=False
-    else:
-        json.write(',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
-
+    print "[commenters]",
     cemaphore=True
-    for contributor in file_list[file]['committers']:
+    for commenter in userList:
+        userList[commenter]['num']=cpt
+        if userList[commenter]['comments']>max_user_comment:
+            max_user_comment=userList[commenter]['comments']
+        cpt+=1
         if cemaphore:
-            json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            json.write('{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
             cemaphore=False
         else:
-            json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
-        num+=1
+            json.write(',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
+                  
+    print '\033[92m'+" ok"+'\033[0m'
+
+    print "[links]",
+    json.write('],"links":[')
+    cemaphore=True
+    for issue in issueList:
+        for commenter in issueList[issue]['commenters']:
+            if cemaphore:
+                json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+                cemaphore=False
+            else:
+                json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+
+    json.write('],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}')
+    print '\033[92m'+" ok"+'\033[0m'
+
+    json.close()
+
+
+    layout, data=mod.draw(fileName)
+    return layout, data
+
+
+def finalJson(file_list,contributers_list,issueList,userList):
+
+    print '\033[4m'+"----Making final json file: "+org+"/"+repo+".json----"+'\033[0m'
+
+    ###################
+    # final json file #
+    ###################
+
+    fileName=org+'-'+repo+'.json'
+
+    num=0
+    # Here we have to make a unique number for each participant
+
+    print "[files]",
+    json = open(fileName, "wb+")
+    json.write( '{"organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","files":[');
+    cemaphore=True
+    for file in file_list:
+        if cemaphore:
+            json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
+            cemaphore=False
+        else:
+            json.write(',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
 
         cemaphore=True
-        for committer in contributers_list[contributor]['committers']:
+        for contributor in file_list[file]['committers']:
             if cemaphore:
-                json.write('{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+                json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
                 cemaphore=False
-                
             else:
-                json.write(',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+                json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+            num+=1
+
+            cemaphore=True
+            for committer in contributers_list[contributor]['committers']:
+                if cemaphore:
+                    json.write('{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+                    cemaphore=False
+                    
+                else:
+                    json.write(',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+            json.write(']}')
         json.write(']}')
+        
+
+
+    print '\033[92m'+" ok"+'\033[0m'
+
+
+    print "[issues]",
+    json.write( '],"issues":[');
+    cemaphore=True
+    for issue in issueList:
+        if cemaphore:
+            json.write('{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+            cemaphore=False
+        else:
+            json.write(',{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+
+        cemaphore=True
+        for commenter in issueList[issue]['commenters']:
+            if cemaphore:
+                json.write('{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
+                cemaphore=False
+            else:
+                json.write(',{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
+        json.write(']}')
+
     json.write(']}')
+    print '\033[92m'+" ok"+'\033[0m'
+
+    json.close()
+
+    
+
+    m.contribution(fileName)
+    # m.comments(fileName)
+
+    print "[finished]", '\033[0m'
+
+    return 'Done'
+
+
+
+
+
+
+
+
+
+
+def Prepare(puser,pp,porg,prepo):
+    
+    #######################################
+    # Prepare all the infos and variables #
+    #######################################
+    global u
+    u=puser
+    global p
+    p=pp
+    global org
+    org=porg # The company name the project belongs to
+    temp=prepo.split('/',1)
+    global repo
+    repo=temp[0] # The project to analyse
+    global directory
+    directory=''
+    
+    global fileName
+    fileName=org+'-'+repo+'.contribution.json'
+
+    if len(temp)>1:
+        directory=temp[1] # Where to make the graph
+        fileName=org+'-'+repo+'>'+directory+'.json'
+
+
+    # Python Github API
+    # gh = Github()
+    global gh
+    gh = Github(login=u, password=p)
+
+    #############
+    # Execution #
+    #############
+
+
+
+def graphContribution():
+    repo_content = getContent(directory)
+    contributers_list={}
+    file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
+
+    layout1, data1=makeContribution(file_list,contributers_list)
+
+    return layout1, data1
+
+def graphComments():
+    
+    issueList, userList = getUserOnIssue()
+
+    layout2, data2=makeComments(issueList,userList)
+
+    return layout2, data2
+
+def graphMetrics():
+    repo_content = getContent(directory)
+    contributers_list={}
+    file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
+    
+    issueList, userList = getUserOnIssue()
+
+    rep = finalJson(file_list,contributers_list,issueList,userList)
+
+    return rep
     
 
 
-print '\033[92m'+" ok"+'\033[0m'
 
 
-print "[issues]",
-json.write( '],"issues":[');
-cemaphore=True
-for issue in issueList:
-    if cemaphore:
-        json.write('{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
-        cemaphore=False
-    else:
-        json.write(',{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
 
-    cemaphore=True
-    for commenter in issueList[issue]['commenters']:
-        if cemaphore:
-            json.write('{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
-            cemaphore=False
-        else:
-            json.write(',{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
-    json.write(']}')
 
-json.write(']}')
-print '\033[92m'+" ok"+'\033[0m'
+if __name__ == "__main__":
 
-json.close()
+    if len(sys.argv)!=4:
+        print '\033[91m'+"-------------\nError: expected 3 argument, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
+        quit()
 
-import metric as m 
+    global p
+    p=getpass.getpass()
 
-m.contribution(fileName)
-# m.comments(fileName)
-
-print "[finished]", '\033[0m'
+    Prepare(sys.argv[1],p,sys.argv[2],sys.argv[3])
+    graphContribution()
+    graphComments()
+    graphMetrics()
 
