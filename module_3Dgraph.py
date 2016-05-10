@@ -2,12 +2,10 @@
 import igraph as ig
 from igraph import *
 import json, urllib2
-import time
-import shared_data as sh
+
 import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly
-import cairocffi as cairo
 
 def draw(file):
 
@@ -15,19 +13,22 @@ def draw(file):
 
 	print "[parsing json]",
 
+
 	data = []
-	fileName=sh.fileName
-	t0=sh.time
-	org=sh.org
-	repo=sh.repo
-	directory=sh.directory
-	graph_type=sh.graph_type
-
-	max_1=sh.max_1
-	max_2=sh.max_2
-
 	f = open(file, "rb")
 	data = json.loads(f.read())
+
+	fileName=file
+	t0=0
+	org=data['organisation']
+	repo=data['repository']
+	directory=data['directory']
+	graph_type=data['type']
+
+	max_1=data['max1']
+	max_2=data['max2']
+
+	
 
 	print '\033[92m'+" ok"+'\033[0m'
 
@@ -36,8 +37,8 @@ def draw(file):
 	print "[info]",
 
 	N=len(data['nodes'])
-
 	L=len(data['links'])
+
 	Edges=[]
 	labels_links=[]
 	for link in data['links']:
@@ -119,6 +120,7 @@ def draw(file):
 	Ynf=[layt[k][1] for k in range(nf)]# y-coordinates
 	Znf=[layt[k][2] for k in range(nf)]# z-coordinates
 
+
 	Xnu=[layt[nf+k][0] for k in range(nu)]# x-coordinates of nodes
 	Ynu=[layt[nf+k][1] for k in range(nu)]# y-coordinates
 	Znu=[layt[nf+k][2] for k in range(nu)]# z-coordinates
@@ -132,8 +134,8 @@ def draw(file):
 	    Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
 	    Ze+=[layt[e[0]][2],layt[e[1]][2], None]
 
-	print '\033[92m'+" ok"+'\033[0m'
 
+	print '\033[92m'+" ok"+'\033[0m'
 
 	print "[draw]"+'\033[95m'
 	print '    links', len(Xe)/3
@@ -185,10 +187,7 @@ def draw(file):
 	          title='' 
 	          )
 
-	execution_time = time.time() - t0
-
 	layout = Layout(
-	         title="Network of "+graph_type+" in <b>"+org+"</b>'s project <b>"+repo+'/'+directory+"</b> (generated in "+str(execution_time)[:-8]+" sec)", 
 	         width=1200,
 	         height=900,
 	         showlegend=True,
@@ -200,30 +199,28 @@ def draw(file):
 	     margin=Margin(
 	        t=100
 	    ),
-	    hovermode='closest',
-	    annotations=Annotations([
-	           Annotation(
-	           showarrow=False, 
-	            text="<a href='https://github.com/"+org+'/'+repo+"/tree/master/"+directory+"'>Repository</a>",
-	            xref='paper',     
-	            yref='paper',     
-	            x=0,  
-	            y=0.1,  
-	            xanchor='left',   
-	            yanchor='bottom',  
-	            font=Font(
-	            size=14 
-	            )     
-	            )
-	        ]),    )
+	    hovermode='closest')
 
 	data=Data([trace1, trace2, trace3])
 	fig=Figure(data=data, layout=layout)
+	
+	##############################
+	# send data and layout to JS #
+	##############################
+
 
 	plotly.offline.plot(fig, filename=file[:-5]+".html")
 
 	print '\033[92m'+" ok"+'\033[0m'
 
-	print "[terminated]", '\033[95m',execution_time, 'sec'+'\033[0m'
+	print "[terminated]", '\033[0m'
+	
+if __name__ == "__main__":
 
+	if len(sys.argv)!=2:
+		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
+		quit()
 
+	file=sys.argv[1]
+
+	draw(file)

@@ -1,7 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
-import time, getpass, sys
+import getpass, sys
 import json, urllib2
-import shared_data as sh
 
 
 
@@ -9,8 +8,6 @@ import shared_data as sh
 
 # if __name__ == "__main__":
 
-t0=time.time()
-sh.time = t0
 
 if len(sys.argv)!=4:
 	print '\033[91m'+"-------------\nError: expected 3 argument, "+str(len(sys.argv)-1)+" given\nusage:\n      python "+sys.argv[0]+"  <login(you)>  <user>  <repositoryOfUser/directory>\n-------------"+'\033[0m'
@@ -25,19 +22,11 @@ org=sys.argv[2] # The company name the project belongs to
 temp=sys.argv[3].split('/',1)
 repo=temp[0] # The project to analyse
 directory=''
-fileName=org+'-'+repo+'(contribution).json'
+fileName=org+'-'+repo+'.contribution.json'
 
 if len(temp)>1:
 	directory=temp[1] # Where to make the graph
 	fileName=org+'-'+repo+'>'+directory+'.json'
-
-# Sharing the data in the common 'sh.py' to all modules
-sh.fileName=fileName
-sh.org=org
-sh.directory=directory
-sh.org=org
-sh.repo=repo
-sh.graph_type='contribution'
 
 max_user_commit=1
 max_file_commit=1
@@ -101,7 +90,7 @@ def getContent(directory):
 from pygithub3 import Github
 # gh = Github()
 gh = Github(login=u, password=p)
-sh.gh=gh
+
 def commitersOfFile(contributorsList,repo,file):
 
     # This URL shows what iformation can be get about commits (email addresses, etc...)
@@ -189,7 +178,7 @@ print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
 
 print "[files]",
 json = open(fileName, "wb+")
-json.write( '{"nodes":[');
+json.write( '{"type":"contribution","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
 for file in file_list:
     file_list[file]['num']=node_number
     if file_list[file]['commits']>max_file_commit:
@@ -226,13 +215,11 @@ for file in file_list:
         else:
             json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
 
-json.write(']}')
+json.write('],"max1":'+str(max_user_commit)+',"max2":'+str(max_file_commit)+'}')
 print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-sh.max_1=max_user_commit
-sh.max_2=max_file_commit
 
 ##########################
 # Display the 3D graph 1 #
@@ -247,11 +234,9 @@ mod.draw(fileName)
 # Graph of the comments #
 #########################
 
-fileName=org+'-'+repo+'(comment).json'
+fileName=org+'-'+repo+'.comment.json'
 max_file_comment=1
 max_user_comment=1
-sh.fileName=fileName
-sh.graph_type='comments'
 
 
 ######################################
@@ -309,7 +294,7 @@ print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
 
 print "[issues]",
 json = open(fileName, "wb+")
-json.write( '{"nodes":[');
+json.write( '{"type":"comments","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
 for issue in issueList:
     issueList[issue]['num']=cpt
     if issueList[issue]['comments']>max_file_comment:
@@ -345,13 +330,11 @@ for issue in issueList:
         else:
             json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
 
-json.write(']}')
+json.write('],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}')
 print '\033[92m'+" ok"+'\033[0m'
 
 json.close()
 
-sh.max_1=max_user_comment
-sh.max_2=max_file_comment
 
 mod.draw(fileName)
 
@@ -360,7 +343,6 @@ mod.draw(fileName)
 ###################
 
 fileName=org+'-'+repo+'.json'
-sh.fileName=fileName
 
 print '\033[4m'+"----Making final json file: "+fileName+"----"+'\033[0m'
 
@@ -369,7 +351,7 @@ num=0
 
 print "[files]",
 json = open(fileName, "wb+")
-json.write( '{"files":[');
+json.write( '{"organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","files":[');
 cemaphore=True
 for file in file_list:
     if cemaphore:
@@ -432,9 +414,5 @@ import metric as m
 m.contribution(fileName)
 # m.comments(fileName)
 
-execution_time = time.time() - t0
-print "[finished]", '\033[95m',execution_time, 'sec'+'\033[0m'
-
-
-
+print "[finished]", '\033[0m'
 

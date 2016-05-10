@@ -12,6 +12,7 @@ def contribution(file):
 	f = open(file, "rb")
 	data = json.loads(f.read())
 
+	fileName=file+'graph.png'
 	commiter_list={}
 	name_list=[]
 	Edges={}
@@ -47,7 +48,7 @@ def contribution(file):
 
 	Graph=ig.Graph(table, directed=False)
 
-	visual=True
+	visual=False
 
 	if visual:
 
@@ -63,12 +64,12 @@ def contribution(file):
 		visual_style["bbox"] = (wi, wi)
 		visual_style["margin"] = (wi/10)
 
-		plot(Graph, 'graph.png', **visual_style)
+		plot(Graph, fileName, **visual_style)
 
 if __name__ == "__main__":
 
 	if len(sys.argv)!=2:
-		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>  [option -c <contribution> -t <comments>]\n-------------"+'\033[0m'
+		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
 		quit()
 
 	file=sys.argv[1]
