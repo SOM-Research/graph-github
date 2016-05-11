@@ -35,7 +35,11 @@ def draw(file):
 
 
 	print "[info]",
-
+	titre="Network of "+graph_type+" in <b>"+org+"</b>'s <b>"+repo+'/'+directory+"</b>"
+	legende="<a href='https://github.com/"+org+'/'+repo+"/tree/master/"+directory+"'>Repository</a>"
+	if directory=='':
+		titre="Network of "+graph_type+" in <b>"+org+"</b>'s <b>"+repo+"</b>"
+		legende="<a href='https://github.com/"+org+'/'+repo+"/'>Repository</a>"
 	N=len(data['nodes'])
 	L=len(data['links'])
 
@@ -188,8 +192,7 @@ def draw(file):
 	          )
 
 	layout = Layout(
-	         width=1200,
-	         height=900,
+			 title=titre, 
 	         showlegend=True,
 	         scene=Scene(  
 	         xaxis=XAxis(axis,showspikes=False),
@@ -199,7 +202,22 @@ def draw(file):
 	     margin=Margin(
 	        t=100
 	    ),
-	    hovermode='closest')
+	    hovermode='closest',
+	    annotations=Annotations([
+	           Annotation(
+	           showarrow=False, 
+	            text=legende,
+	            xref='paper',     
+	            yref='paper',     
+	            x=0,  
+	            y=0.1,  
+	            xanchor='left',   
+	            yanchor='bottom',  
+	            font=Font(
+	            size=14 
+	            )     
+	            )
+	        ]),    )
 
 	data=Data([trace1, trace2, trace3])
 	fig=Figure(data=data, layout=layout)

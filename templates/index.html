@@ -1,0 +1,122 @@
+<head>
+<!-- Plotly.js -->
+<link rel="stylesheet" type="text/css" href="static/styles.css">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+    $("#submit").click(function(){
+        $.ajax({
+            url: "http://localhost:5000/getCont?org="+$("#org").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+            success: function(result){
+                console.log('success');
+
+                var layout=result.layout;
+                var data=result.data;
+
+                $("#slides").hide();
+                $("#graph2").hide();
+                $("#metrics").hide();
+                $(".Explenations").hide();
+    			$("#graph1").show();
+
+                Plotly.newPlot('graph1', data, layout);
+            },
+            error: function(error,status){
+                console.log('error');
+                console.log(status);
+            },
+            complete: function(error,status){
+                console.log('complete');
+                console.log(status);
+            }
+        });
+        $.ajax({
+            url: "http://localhost:5000/getComm?org="+$("#org").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+            success: function(result){
+                console.log('success');
+
+                var layout=result.layout;
+                var data=result.data;
+
+                $("#slides").hide();
+                $("#graph1").hide();
+                $("#metrics").hide();
+                $(".Explenations").hide();
+    			$("#graph2").show();
+
+                Plotly.newPlot('graph2', data, layout);
+            },
+            error: function(error,status){
+                console.log('error');
+                console.log(status);
+            },
+            complete: function(error,status){
+                console.log('complete');
+                console.log(status);
+            }
+        });
+        $.ajax({
+            url: "http://localhost:5000/getAll?org="+$("#org").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+            success: function(result){
+                console.log('success');
+
+                var layout=result.layout;
+                var data=result.data;
+
+                $("#slides").hide();
+                $("#graph1").hide();
+                $("#graph2").hide();
+                $(".Explenations").hide();
+                $("#metrics").show();
+
+                Plotly.newPlot('metrics', data, layout);
+            },
+            error: function(error,status){
+                console.log('error');
+                console.log(status);
+            },
+            complete: function(error,status){
+                console.log('complete');
+                console.log(status);
+            }
+        });
+    });
+    $("#cont").click(function(){
+    	$("#slides").hide();
+    	$("#graph2").hide();
+    	$("#metrics").hide();
+    	$("#graph1").show();
+    });
+    $("#comm").click(function(){
+    	$("#slides").hide();
+    	$("#graph1").hide();
+    	$("#metrics").hide();
+    	$("#graph2").show();
+    });
+    $("#met").click(function(){
+    	$("#slides").hide();
+    	$("#graph2").hide();
+    	$("#graph1").hide();
+    	$("#metrics").show();
+    });
+});
+</script>
+</head>
+<body>
+<h1><a href="index.html">GraphGithub</a></h1>
+<div id=form>
+    <input id="user" type="text" name="user" value="AlexFabre" required>
+    <input id="org" type="text" name="org" value="twbs" required>
+    <input id="repo" type="text" name="repo" value="bootstrap-blog" required>
+    <button id="submit">Go</button>
+</div>
+<div id="container">
+	<div id="slides"><img src="static/dessin.svg"></div>
+    <div id="graph1"><p class="Explenations">About contribution</p></div>
+    <div id="graph2"><p class="Explenations">About comments</p></div>
+    <div id="metrics"><p class="Explenations">About metrics</p></div>
+    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button></div>
+</div>
+</body>
+

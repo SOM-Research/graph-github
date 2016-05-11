@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, request, Response
+from flask import Flask, request, Response, render_template, url_for
 import graphGithub as gph
+import simplejson as json
 
 app = Flask(__name__)
+
+
+@app.route('/')
+@app.route('/index.html')
+def index():
+    return render_template('index.html')
+
 
 @app.route("/getAll")
 def getAllRepo():
@@ -28,7 +36,9 @@ def getContribution():
 	gph.Prepare(user,p,org,repo)
 	layout1, data1=gph.graphContribution()
 
-	return Response(layout1, mimetype='text/json')
+	rep={'layout':layout1,'data':data1}
+
+	return Response(json.dumps(rep), mimetype='text/json')
 
 @app.route("/getComm")
 def getComments():
@@ -41,7 +51,9 @@ def getComments():
 	gph.Prepare(user,p,org,repo)
 	layout2, data2=gph.graphComments()
 
-	return Response(layout2, mimetype='text/json')
+	rep={'layout':layout2,'data':data2}
+
+	return Response(json.dumps(rep), mimetype='text/json')
 
 @app.route("/refreshCont")
 def reloadContribution():
@@ -70,3 +82,5 @@ def reloadMetrics():
 
 if __name__ == "__main__":
 	app.run()
+	url_for('static', filename='styles.css')
+	url_for('static', filename='dessin.svg')
