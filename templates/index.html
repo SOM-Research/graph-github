@@ -61,16 +61,14 @@ $(document).ready(function(){
             success: function(result){
                 console.log('success');
 
-                var layout=result.layout;
-                var data=result.data;
-
                 $("#slides").hide();
                 $("#graph1").hide();
                 $("#graph2").hide();
                 $(".Explenations").hide();
                 $("#metrics").show();
 
-                Plotly.newPlot('metrics', data, layout);
+                $("#metrics").html(result)
+
             },
             error: function(error,status){
                 console.log('error');
@@ -112,10 +110,10 @@ $(document).ready(function(){
     <button id="submit">Go</button>
 </div>
 <div id="container">
-	<div id="slides"><img src="static/dessin.svg"></div>
-    <div id="graph1"><p class="Explenations">About contribution</p></div>
-    <div id="graph2"><p class="Explenations">About comments</p></div>
-    <div id="metrics"><p class="Explenations">About metrics</p></div>
+	<div id="slides"><img src="static/dessin.svg"/></div>
+    <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
+    <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
+    <div id="metrics"><div class="Explenations">About metrics</div></div>
     <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button></div>
 </div>
 </body>

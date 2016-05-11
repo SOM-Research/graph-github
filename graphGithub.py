@@ -374,7 +374,8 @@ def finalJson(file_list,contributers_list,issueList,userList):
 
     
 
-    m.contribution(fileName)
+    im = m.contribution(fileName)
+    return im
     # m.comments(fileName)
 
     print "[finished]", '\033[0m'
@@ -427,6 +428,9 @@ def Prepare(puser,pp,porg,prepo):
 
 
 def graphContribution():
+    global file_list
+    global contributers_list
+
     repo_content = getContent(directory)
     contributers_list={}
     file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
@@ -436,7 +440,9 @@ def graphContribution():
     return layout1, data1
 
 def graphComments():
-    
+    global issueList
+    global userList
+
     issueList, userList = getUserOnIssue()
 
     layout2, data2=makeComments(issueList,userList)
@@ -444,11 +450,10 @@ def graphComments():
     return layout2, data2
 
 def graphMetrics():
-    repo_content = getContent(directory)
-    contributers_list={}
-    file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
-    
-    issueList, userList = getUserOnIssue()
+    global file_list
+    global contributers_list
+    global issueList
+    global userList
 
     rep = finalJson(file_list,contributers_list,issueList,userList)
 

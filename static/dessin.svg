@@ -9,15 +9,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 744.09448819 1052.3622047"
-   id="svg4161"
+   width="1024"
+   height="768"
+   id="svg4942"
    version="1.1"
    inkscape:version="0.91 r13725"
+   viewBox="0 0 1024 768"
    sodipodi:docname="dessin.svg">
   <defs
-     id="defs4163" />
+     id="defs4944" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,11 +25,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="353.17101"
-     inkscape:cy="900.68764"
-     inkscape:document-units="px"
+     inkscape:zoom="0.5"
+     inkscape:cx="574"
+     inkscape:cy="382"
      inkscape:current-layer="layer1"
+     inkscape:document-units="px"
      showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="751"
@@ -37,7 +37,7 @@
      inkscape:window-y="23"
      inkscape:window-maximized="1" />
   <metadata
-     id="metadata4166">
+     id="metadata4947">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -49,35 +49,35 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Calque 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Wawati TC';-inkscape-font-specification:'Wawati TC';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="341.44598"
-       y="69.30201"
-       id="text4709"
+       style="font-style:normal;font-weight:normal;font-size:60px;line-height:125%;font-family:'Wawati TC';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;-inkscape-font-specification:'Wawati TC';font-stretch:normal;font-variant:normal;"
+       x="200"
+       y="122"
+       id="text5490"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         id="tspan4711"
-         x="341.44598"
-         y="69.30201">Enter the repository</tspan></text>
+         id="tspan5492"
+         x="200"
+         y="122">Enter the repository</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Wawati TC';-inkscape-font-specification:'Wawati TC';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="370.01743"
-       y="135.0163"
-       id="text4713"
+       style="font-style:normal;font-weight:normal;font-size:60px;line-height:125%;font-family:'Wawati TC';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;-inkscape-font-specification:'Wawati TC';font-stretch:normal;font-variant:normal;"
+       x="314"
+       y="286"
+       id="text5494"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         id="tspan4715"
-         x="370.01743"
-         y="135.0163">Wait a minute</tspan></text>
+         id="tspan5496"
+         x="314"
+         y="286">and wait a minute</tspan></text>
     <path
        style="fill:#000000;fill-opacity:1;stroke:#0086d0;stroke-opacity:1"
-       id="path4744"
-       d="m 373.98715,177.27134 c 19.23898,0.87768 38.56998,0.61861 57.78981,-0.63313 7.75641,-0.50516 15.49411,-1.26523 23.24117,-1.89784 46.23241,-4.4897 92.171,-11.46504 138.01362,-18.8546 11.27391,-1.84417 22.53845,-3.7447 33.80654,-5.62387 0,0 -10.25538,7.67588 -10.25538,7.67588 l 0,0 c -10.53908,1.23504 -21.07107,2.52901 -31.58464,3.968 -45.49699,6.18676 -90.96769,12.61682 -136.60089,17.73822 -8.01039,0.81618 -16.01191,1.72476 -24.03118,2.44854 -20.73628,1.87157 -41.53932,2.74453 -62.32431,3.85754 0,0 11.94526,-8.67874 11.94526,-8.67874 z"
+       id="path5498"
+       d="m 415.18627,375.80392 c 11.79765,4.31143 24.03129,7.14375 36.17239,10.28047 34.01121,7.35689 68.8795,12.75651 103.79031,12.08256 10.46611,-0.20204 20.89327,-1.33887 31.33991,-2.0083 44.46047,-4.76725 87.67741,-17.14391 129.05927,-33.83747 8.92423,-3.60006 17.62802,-7.72411 26.44204,-11.58617 0,0 -17.03305,13.46735 -17.03305,13.46735 l 0,0 c -8.60253,3.64597 -17.1046,7.53871 -25.80759,10.93792 -41.58675,16.24294 -84.92824,28.26888 -129.35766,33.32425 -10.69502,0.77431 -21.36791,1.96853 -32.08507,2.32294 -36.32948,1.2014 -72.67078,-3.20611 -108.38009,-9.45421 -12.91833,-2.70041 -25.75965,-5.6465 -38.59913,-8.65871 0,0 24.45867,-16.87063 24.45867,-16.87063 z"
        inkscape:connector-curvature="0" />
   </g>
 </svg>

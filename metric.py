@@ -48,23 +48,30 @@ def contribution(file):
 
 	Graph=ig.Graph(table, directed=False)
 
-	visual=True
+
+	
+
+	Graph.vs["name"] = name_list
+
+	# layout = Graph.layout("kk")
+	wi=1000
+
+	visual_style = {}
+	visual_style["vertex_size"] = 20
+	visual_style["vertex_label"] = Graph.vs["name"]
+	visual_style["layout"] = "kk"
+	visual_style["bbox"] = (wi, wi)
+	visual_style["margin"] = (wi/10)
+
+	return Graph.vs.select(_degree = g.maxdegree())["name"]
+
+
+
+	visual=False
 
 	if visual:
 
-		Graph.vs["name"] = name_list
-
-		# layout = Graph.layout("kk")
-		wi=1000
-
-		visual_style = {}
-		visual_style["vertex_size"] = 20
-		visual_style["vertex_label"] = Graph.vs["name"]
-		visual_style["layout"] = "kk"
-		visual_style["bbox"] = (wi, wi)
-		visual_style["margin"] = (wi/10)
-
-		plot(Graph, fileName, **visual_style)
+		return plot(Graph, **visual_style)
 	
 
 if __name__ == "__main__":

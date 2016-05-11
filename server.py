@@ -12,19 +12,6 @@ def index():
     return render_template('index.html')
 
 
-@app.route("/getAll")
-def getAllRepo():
-	
-	user = request.values.get('user')
-	org = request.values.get('org')
-	repo = request.values.get('repo')
-	p='Srp043k1'
-	
-	gph.Prepare(user,p,org,repo)
-	rep=gph.graphMetrics()
-	
-	return Response(rep, mimetype='text')
-
 @app.route("/getCont")
 def getContribution():
 	
@@ -43,17 +30,21 @@ def getContribution():
 @app.route("/getComm")
 def getComments():
 	
-	user = request.values.get('user')
-	org = request.values.get('org')
-	repo = request.values.get('repo')
-	p='Srp043k1'
-	
-	gph.Prepare(user,p,org,repo)
 	layout2, data2=gph.graphComments()
 
 	rep={'layout':layout2,'data':data2}
 
 	return Response(json.dumps(rep), mimetype='text/json')
+
+
+@app.route("/getAll")
+def getAllRepo():
+
+	
+	rep=gph.graphMetrics()
+	
+	return Response(rep, mimetype='text')
+
 
 @app.route("/refreshCont")
 def reloadContribution():
