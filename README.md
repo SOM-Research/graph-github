@@ -16,10 +16,20 @@ pip install plotly
 ```
 
 ```
-pip install igraph
+pip install python-igraph
 ```
 
-Then you just have to run the python script (contribution.py or comment.py) with some few arguments (what repository you want to work on) So juste type:
+
+```
+pip install simplejson
+```
+
+```
+pip install flask
+```
+
+
+Then you just have to run the python script with some few arguments (what repository you want to work on) So juste type:
 
 ```
 python graphGithub.py  <yourGithubUserName>  <userOfRepository>  <repository[/directory]>

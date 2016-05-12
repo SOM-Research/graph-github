@@ -1,6 +1,5 @@
 from igraph import *
 import igraph as ig
-import cairocffi as cairo
 import json, urllib2, sys
 
 
@@ -83,4 +82,4 @@ if __name__ == "__main__":
 
 	f = open(file, "rb")
 
-	contribution(f)
+	contribution(f.read())

@@ -84,12 +84,12 @@ def draw(file):
 		  	labels_2.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
 		  	nu+=1
 		  	group_2.append(node['group'])
-		  	value_2.append((int(node['commits'])*80/max_1)+8)
+		  	value_2.append((int(node['commits'])*20/max_1)+10)
 		  else:
 		  	labels_1.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
 		  	nf+=1
 		  	group_1.append(node['group'])
-		  	value_1.append((int(node['commits'])*50/max_2)+8)
+		  	value_1.append((int(node['commits'])*20/max_2)+8)
 
 
 	elif graph_type=='comments':
@@ -107,12 +107,12 @@ def draw(file):
 		  	labels_2.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
 		  	nu+=1
 		  	group_2.append(node['group'])
-		  	value_2.append((int(node['comments'])*80/max_1)+8)
+		  	value_2.append((int(node['comments'])*40/max_1)+10)
 		  else:
 		  	labels_1.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
 		  	nf+=1
 		  	group_1.append(node['group'])
-		  	value_1.append((int(node['comments'])*50/max_2)+8)
+		  	value_1.append((int(node['comments'])*20/max_2)+8)
 
 
 	print '\033[92m'+" ok"+'\033[0m'
@@ -219,7 +219,7 @@ def draw(file):
 	        ]),    )
 
 	data=Data([trace1, trace2, trace3])
-	fig=Figure(data=data, layout=layout)
+	
 	
 
 	print '\033[92m'+" ok"+'\033[0m'
@@ -232,7 +232,6 @@ def draw(file):
 
 	return layout, data
 
-	# plotly.offline.plot(fig, filename=file[:-5]+".html")
 
 
 	
@@ -242,8 +241,13 @@ if __name__ == "__main__":
 		print '\033[91m'+"-------------\nError: expected 1 argument\nusage:\n      python "+sys.argv[0]+"  <file.json>\n-------------"+'\033[0m'
 		quit()
 
-	file=sys.argv[1]
+	jsonfile=sys.argv[1]
 
-	f = open(file, "rb")
+	f = open(jsonfile, "rb")
 
-	draw(f)
+	layout, data = draw(f.read())
+
+	fig=Figure(data=data, layout=layout)
+
+	plotly.offline.plot(fig, filename=jsonfile[:-5]+".html")
+
