@@ -15,8 +15,7 @@ def draw(file):
 
 
 	data = []
-	f = open(file, "rb")
-	data = json.loads(f.read())
+	data = json.loads(file)
 
 	fileName=file
 	t0=0
@@ -245,4 +244,6 @@ if __name__ == "__main__":
 
 	file=sys.argv[1]
 
-	draw(file)
+	f = open(file, "rb")
+
+	draw(f)

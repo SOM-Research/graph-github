@@ -9,8 +9,7 @@ def contribution(file):
 
 	data = []
 
-	f = open(file, "rb")
-	data = json.loads(f.read())
+	data = json.loads(file)
 
 	fileName=file+'graph.png'
 	commiter_list={}
@@ -63,7 +62,7 @@ def contribution(file):
 	visual_style["bbox"] = (wi, wi)
 	visual_style["margin"] = (wi/10)
 
-	return Graph.vs.select(_degree = g.maxdegree())["name"]
+	return Graph.vs.select(_degree = Graph.maxdegree())["name"]
 
 
 
@@ -82,4 +81,6 @@ if __name__ == "__main__":
 
 	file=sys.argv[1]
 
-	contribution(file)
+	f = open(file, "rb")
+
+	contribution(f)

@@ -18,18 +18,27 @@ def encodeUserData(user, password):
 # to github and parse the result in Json  #
 ###########################################
 def sendRequest(url):
+    global u
+    global p
+    global logged
+
     data=[]
     req = urllib2.Request(url)
     req.add_header('Accept', 'application/json')
     req.add_header("Content-type", "application/x-www-form-urlencoded")
-    req.add_header('Authorization', encodeUserData(u, p))
+    if logged:
+        print 'Sending request as '+u 
+        req.add_header('Authorization', encodeUserData(u, p))
+    else:
+        print 'Sending request as annonimous'
     # make the request and print the results
     try:
         res = urllib2.urlopen(req)
         return json.loads(res.read())
     except urllib2.HTTPError, e:
         print '\033[91m'+"\n----Error----\n"+e.fp.read()+"\n-------------\n"+'\033[0m'
-        quit()
+        print "Request failed !"
+        return False
     # print res.read()
     # parse the result in json format
     
@@ -43,12 +52,15 @@ def getContent(directory):
     url='https://api.github.com/repos/'+org+'/'+repo+'/contents/'+directory+'/'
     data = sendRequest(url)
 
-    content={}
-    # get the number of elements in the repository and print it
-    for file in data:
-        content[file['name']] = {'name':directory+'/'+file['name'],'size':file['size'],'type':file['type']}
-    print '\033[92m'+"[Done]"+'\033[0m'
-    return content
+    if data==False:
+        return False
+    else:
+        content={}
+        # get the number of elements in the repository and print it
+        for file in data:
+            content[file['name']] = {'name':directory+'/'+file['name'],'size':file['size'],'type':file['type']}
+        print '\033[92m'+"[Done]"+'\033[0m'
+        return content
 
 
 ######################################
@@ -139,14 +151,14 @@ def makeContribution(file_list,contributers_list):
     print '\033[4m'+"----Making contribution json file: "+fileName+"----"+'\033[0m'
 
     print "[files]",
-    json = open(fileName, "wb+")
-    json.write( '{"type":"contribution","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
+    json=''
+    json=json+ '{"type":"contribution","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[';
     for file in file_list:
         file_list[file]['num']=node_number
         if file_list[file]['commits']>max_file_commit:
         	max_file_commit=file_list[file]['commits']
         node_number+=1
-        json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},')
+        json=json+'{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","num":"'+str(file_list[file]['num'])+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","group":1},'
     print '\033[92m'+" ok"+'\033[0m'
 
 
@@ -158,36 +170,35 @@ def makeContribution(file_list,contributers_list):
         	max_user_commit=contributers_list[contributor]['commits']
         node_number+=1
         if cemaphore:
-            json.write('{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
+            json=json+'{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}'
             cemaphore=False
         else:
-            json.write(',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}')
+            json=json+',{"login":"'+contributers_list[contributor]['login']+'","num":"'+str(contributers_list[contributor]['num'])+'","commits":"'+str(contributers_list[contributor]['commits'])+'","name":"'+contributers_list[contributor]['name']+'","type":"user","id":"'+str(contributers_list[contributor]['id'])+'","group":'+str((contributers_list[contributor]['commits']/20)+4)+'}'
                   
     print '\033[92m'+" ok"+'\033[0m'
 
 
     print "[links]",
-    json.write('],"links":[')
+    json=json+'],"links":['
     cemaphore=True
     for file in file_list:
         for committer in file_list[file]['committers']:
             if cemaphore:
-                json.write('{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+                json=json+'{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}'
                 cemaphore=False
             else:
-                json.write(',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}')
+                json=json+',{"source":'+str(file_list[file]['num'])+',"target":'+str(contributers_list[committer]['num'])+',"value":'+str(file_list[file]['committers'][committer])+'}'
 
-    json.write('],"max1":'+str(max_user_commit)+',"max2":'+str(max_file_commit)+'}')
+    json=json+'],"max1":'+str(max_user_commit)+',"max2":'+str(max_file_commit)+'}'
     print '\033[92m'+" ok"+'\033[0m'
 
-    json.close()
 
 
     ##########################
     # Display the 3D graph 1 #
     ##########################
 
-    layout, data=mod.draw(fileName)
+    layout, data=mod.draw(json)
     return layout, data
 
 
@@ -252,14 +263,14 @@ def makeComments(issueList,userList):
     print '\033[4m'+"----Making comments json file: "+fileName+"----"+'\033[0m'
 
     print "[issues]",
-    json = open(fileName, "wb+")
-    json.write( '{"type":"comments","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":[');
+    json = ''
+    json=json+ '{"type":"comments","organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","nodes":['
     for issue in issueList:
         issueList[issue]['num']=cpt
         if issueList[issue]['comments']>max_file_comment:
             max_file_comment=issueList[issue]['comments']
         cpt+=1
-        json.write('{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},')
+        json=json+'{"type":"issue","number":"'+str(issueList[issue]['number'])+'","state":"'+issueList[issue]['state']+'","num":"'+str(issueList[issue]['num'])+'","comments":"'+str(issueList[issue]['comments'])+'","group":1},'
     print '\033[92m'+" ok"+'\033[0m'
 
 
@@ -271,31 +282,30 @@ def makeComments(issueList,userList):
             max_user_comment=userList[commenter]['comments']
         cpt+=1
         if cemaphore:
-            json.write('{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
+            json=json+'{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}'
             cemaphore=False
         else:
-            json.write(',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}')
+            json=json+',{"type":"commenter","login":"'+userList[commenter]['login']+'","num":"'+str(userList[commenter]['num'])+'","comments":"'+str(userList[commenter]['comments'])+'","id":"'+str(userList[commenter]['id'])+'","group":'+str((userList[commenter]['comments']/20)+4)+'}'
                   
     print '\033[92m'+" ok"+'\033[0m'
 
     print "[links]",
-    json.write('],"links":[')
+    json=json+'],"links":['
     cemaphore=True
     for issue in issueList:
         for commenter in issueList[issue]['commenters']:
             if cemaphore:
-                json.write('{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+                json=json+'{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}'
                 cemaphore=False
             else:
-                json.write(',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}')
+                json=json+',{"source":'+str(issueList[issue]['num'])+',"target":'+str(userList[commenter]['num'])+',"value":'+str(issueList[issue]['commenters'][commenter])+'}'
 
-    json.write('],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}')
+    json=json+'],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}'
     print '\033[92m'+" ok"+'\033[0m'
 
-    json.close()
 
 
-    layout, data=mod.draw(fileName)
+    layout, data=mod.draw(json)
     return layout, data
 
 
@@ -313,35 +323,35 @@ def finalJson(file_list,contributers_list,issueList,userList):
     # Here we have to make a unique number for each participant
 
     print "[files]",
-    json = open(fileName, "wb+")
-    json.write( '{"organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","files":[');
+    json=''
+    json=json+ '{"organisation":"'+org+'","repository":"'+repo+'","directory":"'+directory+'","files":[';
     cemaphore=True
     for file in file_list:
         if cemaphore:
-            json.write('{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
+            json=json+'{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":['
             cemaphore=False
         else:
-            json.write(',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":[')
+            json=json+',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":['
 
         cemaphore=True
         for contributor in file_list[file]['committers']:
             if cemaphore:
-                json.write('{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+                json=json+'{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":['
                 cemaphore=False
             else:
-                json.write(',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":[')
+                json=json+',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":['
             num+=1
 
             cemaphore=True
             for committer in contributers_list[contributor]['committers']:
                 if cemaphore:
-                    json.write('{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
+                    json=json+'{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}'
                     cemaphore=False
                     
                 else:
-                    json.write(',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}')
-            json.write(']}')
-        json.write(']}')
+                    json=json+',{"name":"'+str(contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(contributers_list[contributor]['committers'][committer]['date'])+'"}'
+            json=json+']}'
+        json=json+']}'
         
 
 
@@ -349,32 +359,31 @@ def finalJson(file_list,contributers_list,issueList,userList):
 
 
     print "[issues]",
-    json.write( '],"issues":[');
+    json=json+ '],"issues":['
     cemaphore=True
     for issue in issueList:
         if cemaphore:
-            json.write('{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+            json=json+'{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":['
             cemaphore=False
         else:
-            json.write(',{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":[')
+            json=json+',{"number":'+str(issueList[issue]['number'])+',"state":"'+issueList[issue]['state']+'","author":"'+str(issueList[issue]['author'])+'","comments":'+str(issueList[issue]['comments'])+',"commenters":['
 
         cemaphore=True
         for commenter in issueList[issue]['commenters']:
             if cemaphore:
-                json.write('{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
+                json=json+'{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}'
                 cemaphore=False
             else:
-                json.write(',{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}')
-        json.write(']}')
+                json=json+',{"login":"'+str(userList[commenter]['login'])+'","id":'+str(userList[commenter]['id'])+',"comments":'+str(issueList[issue]['commenters'][commenter])+',"total-comments":'+str(userList[commenter]['comments'])+'}'
+        json=json+']}'
 
-    json.write(']}')
+    json=json+']}'
     print '\033[92m'+" ok"+'\033[0m'
 
-    json.close()
 
     
 
-    im = m.contribution(fileName)
+    im = m.contribution(json)
     return im
     # m.comments(fileName)
 
@@ -397,18 +406,24 @@ def Prepare(puser,pp,porg,prepo):
     # Prepare all the infos and variables #
     #######################################
     global u
-    u=puser
     global p
-    p=pp
     global org
+    global repo
+    global directory
+    global fileName
+    global logged
+    global gh
+    global repo_content
+    
+    u=puser
+    p=pp
+
+    logged=True
+
     org=porg # The company name the project belongs to
     temp=prepo.split('/',1)
-    global repo
     repo=temp[0] # The project to analyse
-    global directory
     directory=''
-    
-    global fileName
     fileName=org+'-'+repo+'.contribution.json'
 
     if len(temp)>1:
@@ -416,10 +431,37 @@ def Prepare(puser,pp,porg,prepo):
         fileName=org+'-'+repo+'>'+directory+'.json'
 
 
-    # Python Github API
-    # gh = Github()
-    global gh
-    gh = Github(login=u, password=p)
+    if u!='':
+        url='https://api.github.com/users/'+u
+        data=sendRequest(url)
+        if data==False:
+            logged=False
+
+
+    if logged:
+        # Python Github API
+        # gh = Github()
+        gh = Github(login=u, password=p)
+        name=data['name']
+        idnumber=data['id']
+        if name=='':
+            name=u
+        message='Logged as '+name
+    else:
+        gh = Github()
+        message='Login failed ! annonimous...'
+
+    repo_content = getContent(directory)
+
+    foundRepo=True
+
+    if repo_content==False:
+        error="Error: Unable to find repository ! "
+        print error
+        message=message+' '+error
+        foundRepo=False
+
+    return logged,message,foundRepo
 
     #############
     # Execution #
@@ -430,8 +472,9 @@ def Prepare(puser,pp,porg,prepo):
 def graphContribution():
     global file_list
     global contributers_list
+    global repo_content
 
-    repo_content = getContent(directory)
+    
     contributers_list={}
     file_list, contributers_list = commitersOfDirectory(contributers_list,repo,repo_content)
 
@@ -473,7 +516,6 @@ if __name__ == "__main__":
 
     global p
     p=getpass.getpass()
-
     Prepare(sys.argv[1],p,sys.argv[2],sys.argv[3])
     graphContribution()
     graphComments()

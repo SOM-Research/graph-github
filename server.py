@@ -12,15 +12,23 @@ def index():
     return render_template('index.html')
 
 
+@app.route("/log")
+def login():
+	
+	user = request.values.get('user')
+	p = request.values.get('pass')
+	org = request.values.get('org')
+	repo = request.values.get('repo')
+	
+	logged,message,foundRepo = gph.Prepare(user,p,org,repo)
+
+	rep = {'login_succeded':logged,'message':message,'repo_exists':foundRepo}
+
+	return Response(json.dumps(rep), mimetype='text/json')
+
 @app.route("/getCont")
 def getContribution():
 	
-	user = request.values.get('user')
-	org = request.values.get('org')
-	repo = request.values.get('repo')
-	p='Srp043k1'
-	
-	gph.Prepare(user,p,org,repo)
 	layout1, data1=gph.graphContribution()
 
 	rep={'layout':layout1,'data':data1}
@@ -36,42 +44,17 @@ def getComments():
 
 	return Response(json.dumps(rep), mimetype='text/json')
 
-
 @app.route("/getAll")
 def getAllRepo():
 
 	
 	rep=gph.graphMetrics()
 	
-	return Response(rep, mimetype='text')
-
-
-@app.route("/refreshCont")
-def reloadContribution():
-	
-	user = request.values.get('file')
-	rep='reloading contribution 3D'
-	
-	return Response(rep, mimetype='text')
-
-@app.route("/reloadComm")
-def reloadComments():
-	
-	user = request.values.get('file')
-	rep='reloading comments 3D'
-	
-	return Response(rep, mimetype='text')
-
-@app.route("/reloadM")
-def reloadMetrics():
-	
-	user = request.values.get('file')
-	rep='reloading metrics'
-	
-	return Response(rep, mimetype='text')
-
+	return Response(json.dumps(rep), mimetype='text/json')
 
 if __name__ == "__main__":
 	app.run()
 	url_for('static', filename='styles.css')
 	url_for('static', filename='dessin.svg')
+	url_for('static', filename='error.svg')
+	url_for('static', filename='unknown.gif')
