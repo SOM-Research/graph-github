@@ -1,3 +1,5 @@
+<html lang="en-US">
+<title id='title'>GraphGithub</title>
 <head>
 <!-- Plotly.js -->
 <link rel="stylesheet" type="text/css" href="static/styles.css">
@@ -8,17 +10,22 @@ $(document).ready(function(){
     $("#submit").click(function(){
 
     	$("#message").html('Authentication...');
-        document.getElementById("cont").style.color = "white";
-        document.getElementById("comm").style.color = "white";
-        document.getElementById("met").style.color = "white";
+    	$("#json").html('');
+    	$("#JsonFile").hide();
+        $("#comm").hide();
+        $("#cont").hide();
+        $("#met").hide();
         $("#graph1").hide();
         $("#metrics").hide();
         $("#graph2").hide();
         $("#slides").show();
                 
         $("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
+
+        var url="http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val();
+
         $.ajax({
-            url: "http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+            url: url, 
             success: function(result){
                 console.log('success');
 
@@ -38,6 +45,9 @@ $(document).ready(function(){
                 console.log(status);
             }
         });
+        
+        $("#title").html($("#repo").val());
+
         $.ajax({
             url: "http://localhost:5000/getCont", 
             success: function(result){
@@ -51,7 +61,7 @@ $(document).ready(function(){
     			$("#graph1").show();
 
                 Plotly.newPlot('graph1', data, layout);
-                document.getElementById("cont").style.color = "8db914";
+                $("#cont").show();
             },
             error: function(error,status){
                 console.log('error');
@@ -78,7 +88,7 @@ $(document).ready(function(){
     			$("#graph2").show();
 
                 Plotly.newPlot('graph2', data, layout);
-                document.getElementById("comm").style.color = "8db914";
+                $("#comm").show();
 
                 $("#graph2").hide();
                 $("#graph1").show();
@@ -107,11 +117,13 @@ $(document).ready(function(){
                 $(".Explenations").hide();
                 $("#metrics").show();
 
-                $("#metrics").html(result)
-                document.getElementById("met").style.color = "8db914";
+                $("#metrics").html(result);
+                $("#met").show();
 
                 $("#metrics").hide();
                 $("#graph1").show();
+                $("#JsonFile").show();
+                $("#json").html('Download');
 
             },
             error: function(error,status){
@@ -128,6 +140,7 @@ $(document).ready(function(){
                 console.log(status);
             }
         });
+        url="";
     });
     $("#cont").click(function(){
     	$("#slides").hide();
@@ -165,7 +178,8 @@ $(document).ready(function(){
     <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
     <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
     <div id="metrics"><div class="Explenations"><h2>About metrics</h2></div></div>
-    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><br><br><button class="col" id=met>Connexions</button><br><br><div id=jsonFile><button class="col" id=json>JSON file</button></div></div>
+    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button><div id='JsonFile'><button id=json>JSON file</button></div></div>
 </div>
 </body>
+</html>
 
