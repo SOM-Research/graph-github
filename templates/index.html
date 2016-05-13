@@ -6,11 +6,11 @@
 <script>
 $(document).ready(function(){
     $("#submit").click(function(){
+
     	$("#message").html('Authentication...');
         document.getElementById("cont").style.color = "white";
         document.getElementById("comm").style.color = "white";
         document.getElementById("met").style.color = "white";
-       
         $("#graph1").hide();
         $("#metrics").hide();
         $("#graph2").hide();
@@ -51,7 +51,6 @@ $(document).ready(function(){
     			$("#graph1").show();
 
                 Plotly.newPlot('graph1', data, layout);
-
                 document.getElementById("cont").style.color = "8db914";
             },
             error: function(error,status){
@@ -74,12 +73,15 @@ $(document).ready(function(){
                 var data=result.data;
 
                 $("#graph1").hide();
+                $("#slides").hide();
                 $(".Explenations").hide();
     			$("#graph2").show();
 
                 Plotly.newPlot('graph2', data, layout);
-
                 document.getElementById("comm").style.color = "8db914";
+
+                $("#graph2").hide();
+                $("#graph1").show();
             },
             error: function(error,status){
                 console.log('error');
@@ -100,12 +102,12 @@ $(document).ready(function(){
             success: function(result){
                 console.log('success');
 
-                $("#graph2").hide();
+                $("#graph1").hide();
+                $("#slides").hide();
                 $(".Explenations").hide();
                 $("#metrics").show();
 
                 $("#metrics").html(result)
-
                 document.getElementById("met").style.color = "8db914";
 
                 $("#metrics").hide();
@@ -116,7 +118,7 @@ $(document).ready(function(){
                 console.log('error');
                 console.log(status);
 
-		        $("#graph2").hide();
+		        $("#graph1").hide();
 		        $("#slides").show();
                 $("#slides").html('<img src="static/error.svg"/>');
 
@@ -163,7 +165,7 @@ $(document).ready(function(){
     <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
     <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
     <div id="metrics"><div class="Explenations"><h2>About metrics</h2></div></div>
-    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><br><br><button class="col" id=met>Connexions</button></div>
+    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><br><br><button class="col" id=met>Connexions</button><br><br><div id=jsonFile><button class="col" id=json>JSON file</button></div></div>
 </div>
 </body>
 
