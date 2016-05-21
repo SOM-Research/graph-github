@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from igraph import *
 import igraph as ig
 import json, urllib2, sys
@@ -43,6 +44,8 @@ def contribution(file):
 	table=[]
 	for couple in Edges:
 		table.append((Edges[couple]['one'],Edges[couple]['two']))
+
+	DOA = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
 
 	Graph=ig.Graph(table, directed=False)
 

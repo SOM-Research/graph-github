@@ -11,7 +11,7 @@ function runScript(){
             alert("Server is busy, wait for the end of you request first")
             return false;
         }
-        
+
         cemaphore=false;
 
         if ($("#user").val()!='' && $("#pass").val()=='') {
@@ -161,7 +161,7 @@ function runScript(){
         cemaphore=true;
 };
 $(document).ready(function(){
-    $(document).keypress(function (){
+    $(document).keypress(function (e){
         if (e.which == 13) {
             runScript();
         }
