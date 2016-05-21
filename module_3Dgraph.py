@@ -2,7 +2,7 @@
 import igraph as ig
 from igraph import *
 import json, urllib2
-
+from math import *
 import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly
@@ -83,7 +83,7 @@ def draw(file):
 		  if node['type']=='user':
 		  	labels_2.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
 		  	nu+=1
-		  	group_2.append(node['group'])
+		  	group_2.append(2*log10(node['group']))
 		  	value_2.append((int(node['commits'])*20/max_1)+10)
 		  else:
 		  	labels_1.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
@@ -106,7 +106,7 @@ def draw(file):
 		  if node['type']=='commenter':
 		  	labels_2.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
 		  	nu+=1
-		  	group_2.append(node['group'])
+		  	group_2.append(log(node['group']))
 		  	value_2.append((int(node['comments'])*40/max_1)+10)
 		  else:
 		  	labels_1.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
@@ -159,7 +159,7 @@ def draw(file):
 	               name=type_2+str(nu),
 	               marker=Marker(symbol='dot',
 	                             size=value_2, 
-	                             color=value_2, 
+	                             color=group_2, 
 	                             colorscale='Viridis',
 	                             line=Line(color='rgb(50,50,50)', width=0.5)
 	                             ),

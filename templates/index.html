@@ -6,12 +6,30 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 <script>
-$(document).ready(function(){
-    $("#submit").click(function(){
+function runScript(){
+        if (cemaphore=false) {
+            alert("Server is busy, wait for the end of you request first")
+            return false;
+        }
+        
+        cemaphore=false;
 
-    	$("#message").html('Authentication...');
-    	$("#json").html('');
-    	$("#JsonFile").hide();
+        if ($("#user").val()!='' && $("#pass").val()=='') {
+            alert("Password is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
+            return false;
+        }
+        if ($("#org").val()=='') {
+            alert('Organisation is missing');
+            return false;
+        }
+        if ($("#repo").val()=='') {
+            alert('Repository is missing');
+            return false;
+        }
+
+
+        $("#message").html('Authentication...');
+        $("#JsonFile").hide();
         $("#comm").hide();
         $("#cont").hide();
         $("#met").hide();
@@ -58,7 +76,7 @@ $(document).ready(function(){
 
                 $("#slides").hide();
                 $(".Explenations").hide();
-    			$("#graph1").show();
+                $("#graph1").show();
 
                 Plotly.newPlot('graph1', data, layout);
                 $("#cont").show();
@@ -85,7 +103,7 @@ $(document).ready(function(){
                 $("#graph1").hide();
                 $("#slides").hide();
                 $(".Explenations").hide();
-    			$("#graph2").show();
+                $("#graph2").show();
 
                 Plotly.newPlot('graph2', data, layout);
                 $("#comm").show();
@@ -123,15 +141,14 @@ $(document).ready(function(){
                 $("#metrics").hide();
                 $("#graph1").show();
                 $("#JsonFile").show();
-                $("#json").html('Download');
 
             },
             error: function(error,status){
                 console.log('error');
                 console.log(status);
 
-		        $("#graph1").hide();
-		        $("#slides").show();
+                $("#graph1").hide();
+                $("#slides").show();
                 $("#slides").html('<img src="static/error.svg"/>');
 
             },
@@ -141,6 +158,16 @@ $(document).ready(function(){
             }
         });
         url="";
+        cemaphore=true;
+};
+$(document).ready(function(){
+    $(document).keypress(function (){
+        if (e.which == 13) {
+            runScript();
+        }
+    });
+    $("#submit").click(function(){
+        runScript();
     });
     $("#cont").click(function(){
     	$("#slides").hide();
@@ -178,7 +205,7 @@ $(document).ready(function(){
     <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
     <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
     <div id="metrics"><div class="Explenations"><h2>About metrics</h2></div></div>
-    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button><div id='JsonFile'><button id=json>JSON file</button></div></div>
+    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button><div id='JsonFile'><button class="col" id=json>Download</button></div></div>
 </div>
 </body>
 </html>
