@@ -53,7 +53,7 @@ def getAllRepo():
 	return Response(json.dumps(rep), mimetype='text/json')
 
 if __name__ == "__main__":
-	app.run(port=80)
+	app.run()
 	url_for('static', filename='styles.css')
 	url_for('static', filename='dessin.svg')
 	url_for('static', filename='error.svg')
