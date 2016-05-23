@@ -1,1 +1,1 @@
-web: python server.py
+web: web: gunicorn server:app --log-file -
