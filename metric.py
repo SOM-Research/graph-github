@@ -6,6 +6,8 @@ import json, urllib2, sys
 
 def contribution(file):
 		
+	# Degree of Authorship (DOA) = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
+	# first authorship (FA), number of deliveries (DL), number of acceptances (AC)
 
 	data = []
 
@@ -45,7 +47,6 @@ def contribution(file):
 	for couple in Edges:
 		table.append((Edges[couple]['one'],Edges[couple]['two']))
 
-	DOA = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
 
 	Graph=ig.Graph(table, directed=False)
 

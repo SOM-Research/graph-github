@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 import getpass, sys
+from datetime import datetime
 import json, urllib2
 from pygithub3 import Github
 import module_3Dgraph as mod
@@ -58,7 +59,7 @@ def getContent(directory):
         content={}
         # get the number of elements in the repository and print it
         for file in data:
-            content[file['name']] = {'name':directory+'/'+file['name'],'size':file['size'],'type':file['type']}
+            content[file['name']] = {'name':directory+'/'+file['name'],'size':file['size'],'author':'','type':file['type']}
         print '\033[92m'+"[Done]"+'\033[0m'
         return content
 
@@ -83,6 +84,9 @@ def commitersOfFile(contributorsList,repo,file):
     num_commit=len(commitList)
     print str(num_commit)+' commits' # The length of the list id: number of commits
 
+    author_date = datetime.now()
+    author_name=''
+
     for commit in commitList:
     	# # Let's get all the infos aboout a commit
      #    url='https://api.github.com/repos/'+org+'/'+repo+'/commits/'+str(commit)[12:-2]
@@ -94,6 +98,9 @@ def commitersOfFile(contributorsList,repo,file):
         committer_email=commit.commit.committer.email
         committer_message=commit.commit.message
         commit_date=commit.commit.committer.date # Date of this commit
+        if commit_date<author_date:
+            author_date=commit_date
+            author_name=committer_name
         commit_sha=commit.sha # The id of the commit
 
         	# We get everything about the author of the modifications
@@ -121,7 +128,7 @@ def commitersOfFile(contributorsList,repo,file):
         else:
             fileContributors[contributor_login]=1
 
-    return num_commit, contributorsList, fileContributors
+    return num_commit, author_name, contributorsList, fileContributors
 
 
 ######################################
@@ -133,7 +140,7 @@ def commitersOfDirectory(contributorsList,repo,content):
     fileList={}
     for file in content:
         fileList[content[file]['name']]={'name':content[file]['name'],'type':content[file]['type'],'size':content[file]['size'],'num':0}
-        fileList[content[file]['name']]['commits'], contributorsList, fileList[content[file]['name']]['committers']=(commitersOfFile(contributorsList,repo,content[file]['name']))
+        fileList[content[file]['name']]['commits'], fileList[content[file]['name']]['author'], contributorsList, fileList[content[file]['name']]['committers']=(commitersOfFile(contributorsList,repo,content[file]['name']))
     print '\033[92m'+"[Done]"+'\033[95m', str(len(contributorsList))+' contributors'+'\033[0m'
     return fileList, contributorsList
 
@@ -332,18 +339,18 @@ def finalJson(file_list,contributers_list,issueList,userList):
     cemaphore=True
     for file in file_list:
         if cemaphore:
-            json=json+'{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":['
+            json=json+'{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","author":"'+str(file_list[file]['author'])+'","commiters":['
             cemaphore=False
         else:
-            json=json+',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","commiters":['
+            json=json+',{"name":"'+file_list[file]['name']+'","type":"'+file_list[file]['type']+'","size":"'+str(file_list[file]['size'])+'","commits":"'+str(file_list[file]['commits'])+'","author":"'+str(file_list[file]['author'])+'","commiters":['
 
         cemaphore=True
         for contributor in file_list[file]['committers']:
             if cemaphore:
-                json=json+'{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":['
+                json=json+'{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters-info":['
                 cemaphore=False
             else:
-                json=json+',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters":['
+                json=json+',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiter-info":['
             num+=1
 
             cemaphore=True
