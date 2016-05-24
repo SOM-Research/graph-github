@@ -7,6 +7,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 <script>
 function runScript(){
+        var endpoint="https://peaceful-ravine-26278.herokuapp.com"
+
         if (cemaphore=false) {
             alert("Server is busy, wait for the end of you request first")
             return false;
@@ -40,7 +42,7 @@ function runScript(){
                 
         $("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
 
-        var url="http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val();
+        var url = endpoint + "/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val();
 
         $.ajax({
             url: url, 
@@ -67,7 +69,7 @@ function runScript(){
         $("#title").html($("#repo").val());
 
         $.ajax({
-            url: "http://localhost:5000/getCont", 
+            url: endpoint + "/getCont",
             success: function(result){
                 console.log('success');
 
@@ -93,7 +95,7 @@ function runScript(){
             }
         });
         $.ajax({
-            url: "http://localhost:5000/getComm", 
+            url: endpoint + "/getComm",
             success: function(result){
                 console.log('success');
 
@@ -126,7 +128,7 @@ function runScript(){
             }
         });
         $.ajax({
-            url: "http://localhost:5000/getAll",
+            url: endpoint + "/getAll",
             success: function(result){
                 console.log('success');
 
