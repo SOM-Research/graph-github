@@ -82,6 +82,74 @@ function runScript(){
 
                 Plotly.newPlot('graph1', data, layout);
                 $("#cont").show();
+
+                $.ajax({
+                    url: endpoint + "/getComm",
+                    success: function(result){
+                        console.log('success');
+
+                        var layout=result.layout;
+                        var data=result.data;
+
+                        $("#graph1").hide();
+                        $("#slides").hide();
+                        $(".Explenations").hide();
+                        $("#graph2").show();
+
+                        Plotly.newPlot('graph2', data, layout);
+                        $("#comm").show();
+
+                        $("#graph2").hide();
+                        $("#graph1").show();
+
+                        $.ajax({
+                            url: endpoint + "/getAll",
+                            success: function(result){
+                                console.log('success');
+
+                                $("#graph1").hide();
+                                $("#slides").hide();
+                                $(".Explenations").hide();
+                                $("#metrics").show();
+
+                                $("#metrics").html(result);
+                                $("#met").show();
+
+                                $("#metrics").hide();
+                                $("#graph1").show();
+                                $("#JsonFile").show();
+
+                            },
+                            error: function(error,status){
+                                console.log('error');
+                                console.log(status);
+
+                                $("#graph1").hide();
+                                $("#slides").show();
+                                $("#slides").html('<img src="static/error.svg"/>');
+
+                            },
+                            complete: function(error,status){
+                                console.log('complete');
+                                console.log(status);
+                            }
+                        });
+                    },
+                    error: function(error,status){
+                        console.log('error');
+                        console.log(status);
+
+                        $("#graph1").hide();
+                        $("#slides").show();
+                        $("#slides").html('<img src="static/error.svg"/>');
+
+                    },
+                    complete: function(error,status){
+                        console.log('complete');
+                        console.log(status);
+                    }
+                });
+               
             },
             error: function(error,status){
                 console.log('error');
@@ -94,71 +162,7 @@ function runScript(){
                 console.log(status);
             }
         });
-        $.ajax({
-            url: endpoint + "/getComm",
-            success: function(result){
-                console.log('success');
-
-                var layout=result.layout;
-                var data=result.data;
-
-                $("#graph1").hide();
-                $("#slides").hide();
-                $(".Explenations").hide();
-                $("#graph2").show();
-
-                Plotly.newPlot('graph2', data, layout);
-                $("#comm").show();
-
-                $("#graph2").hide();
-                $("#graph1").show();
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-
-                $("#graph1").hide();
-                $("#slides").show();
-                $("#slides").html('<img src="static/error.svg"/>');
-
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
-        $.ajax({
-            url: endpoint + "/getAll",
-            success: function(result){
-                console.log('success');
-
-                $("#graph1").hide();
-                $("#slides").hide();
-                $(".Explenations").hide();
-                $("#metrics").show();
-
-                $("#metrics").html(result);
-                $("#met").show();
-
-                $("#metrics").hide();
-                $("#graph1").show();
-                $("#JsonFile").show();
-
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-
-                $("#graph1").hide();
-                $("#slides").show();
-                $("#slides").html('<img src="static/error.svg"/>');
-
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
+        
         url="";
         cemaphore=true;
 };
