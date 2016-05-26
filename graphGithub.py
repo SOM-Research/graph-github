@@ -6,18 +6,16 @@ from pygithub3 import Github
 import module_3Dgraph as mod
 import metric as m 
 
+#TODO: Add the list of users:login then 
 
-#########################################################
-# simple wrapper function to encode the username & pass #
-#########################################################
+#----------------------------------------------------------------------
+# Function to send and receive from github API
+# simple wrapper function to encode the username & pass
 def encodeUserData(user, password):
-  return "Basic " + (user + ":" + password).encode("base64").rstrip()
-
-
-###########################################
-# simple function to make the url request #
-# to github and parse the result in Json  #
-###########################################
+    return "Basic " + (user + ":" + password).encode("base64").rstrip()
+#--------------------
+# simple function to make the url request 
+# to github and parse the result in Json  
 def sendRequest(url):
     global u
     global p
@@ -42,11 +40,11 @@ def sendRequest(url):
         return False
     # print res.read()
     # parse the result in json format
-    
+#----------------------------------------------------------------------
 
-#################################
-# To get the repository content #
-#################################
+
+#----------------------------------------------------------------------
+# To get the repository content 
 def getContent(directory):
     print '\033[4m'+"----Collecting contribution data: /"+org+'/'+repo+"/"+directory+" ----"+'\033[0m'
     print "[*]Getting project content..."
@@ -62,14 +60,10 @@ def getContent(directory):
             content[file['name']] = {'name':directory+'/'+file['name'],'size':file['size'],'author':'','type':file['type']}
         print '\033[92m'+"[Done]"+'\033[0m'
         return content
-
-
-######################################
-# To get all the contributors of a   #
-# file and their number of commits   #
-######################################
-
-
+#--------------------
+# To get all the contributors of a   
+# file and their number of commits   
+#--------------------
 def commitersOfFile(contributorsList,repo,file):
 
     UnknownUser_id=1 #Will be used to identify a Unknown user
@@ -98,7 +92,7 @@ def commitersOfFile(contributorsList,repo,file):
         committer_email=commit.commit.committer.email
         committer_message=commit.commit.message
         commit_date=commit.commit.committer.date # Date of this commit
-        if commit_date<author_date:
+        if commit_date<author_date: # Will help to know who is the author of the file with the original commit
             author_date=commit_date
             author_name=committer_name
         commit_sha=commit.sha # The id of the commit
@@ -129,12 +123,9 @@ def commitersOfFile(contributorsList,repo,file):
             fileContributors[contributor_login]=1
 
     return num_commit, author_name, contributorsList, fileContributors
-
-
-######################################
-# To get all the contributors of all #
-# files and their number of commits  #
-######################################
+#--------------------
+# To get all the contributors of all 
+# files and their number of commits  
 def commitersOfDirectory(contributorsList,repo,content):
     print "[*]Getting the commiters..."
     fileList={}
@@ -143,11 +134,8 @@ def commitersOfDirectory(contributorsList,repo,content):
         fileList[content[file]['name']]['commits'], fileList[content[file]['name']]['author'], contributorsList, fileList[content[file]['name']]['committers']=(commitersOfFile(contributorsList,repo,content[file]['name']))
     print '\033[92m'+"[Done]"+'\033[95m', str(len(contributorsList))+' contributors'+'\033[0m'
     return fileList, contributorsList
-
-
-###################################
-# Making the json file of graph 1 #
-###################################
+#--------------------
+# Making the json file of graph 1 
 def makeContribution(file_list,contributers_list):
 
     max_file_commit=1
@@ -210,12 +198,9 @@ def makeContribution(file_list,contributers_list):
     jsonfile.close()
 
     return mod.draw(json)
-
-
-######################################
-# To get all the users of a project  #
-# that talked on an issue            #
-######################################
+#--------------------
+# To get all the users of a project  
+# that talked on an issue            
 # Python Github API
 def getUserOnIssue():
     print '\033[4m'+"----Collecting issue data: /"+org+'/'+repo+"/ ----"+'\033[0m'
@@ -250,9 +235,7 @@ def getUserOnIssue():
     print '\033[92m'+"[Done]"+'\033[0m'
     
     return issueList,userList
-
-
-
+#--------------------
 def makeComments(issueList,userList):
 
 
@@ -318,8 +301,7 @@ def makeComments(issueList,userList):
     jsonfile.close()
 
     return mod.draw(json)
-
-
+#--------------------
 def finalJson(file_list,contributers_list,issueList,userList):
 
     print '\033[4m'+"----Making final json file: "+org+"/"+repo+".json----"+'\033[0m'
@@ -401,16 +383,10 @@ def finalJson(file_list,contributers_list,issueList,userList):
     print 'Done'
 
     return m.contribution(json)
+#----------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
+#----------------------------------------------------------------------
 def Prepare(puser,pp,porg,prepo):
     
     #######################################
@@ -478,8 +454,6 @@ def Prepare(puser,pp,porg,prepo):
     # Execution #
     #############
 
-
-
 def graphContribution():
     global file_list
     global contributers_list
@@ -512,13 +486,10 @@ def graphMetrics():
     rep = finalJson(file_list,contributers_list,issueList,userList)
 
     return rep
-    
+#---------------------------------------------------------------------- 
 
 
-
-
-
-
+#----------------------------------------------------------------------
 if __name__ == "__main__":
 
     if len(sys.argv)!=4:
