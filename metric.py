@@ -41,8 +41,6 @@ def contribution(file):
 						one=file_list[login]
 						two=commiter_list[commiter['login']]['num']
 
-					print one,two
-
 					Edges[(one,two)]={'one':one,'two':two,'size':1}
 				file_list[commiter['login']]=commiter_list[commiter['login']]['num']
 

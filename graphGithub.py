@@ -6,8 +6,6 @@ from pygithub3 import Github
 import module_3Dgraph as mod
 import metric as m 
 
-#TODO: Add the list of users:login then 
-
 #----------------------------------------------------------------------
 # Function to send and receive from github API
 # simple wrapper function to encode the username & pass
@@ -18,7 +16,6 @@ def encodeUserData(user, password):
 # to github and parse the result in Json  
 def sendRequest(url):
     global u
-    global p
     global logged
 
     data=[]
