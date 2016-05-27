@@ -72,6 +72,8 @@ input:hover
 .col
 {
     color: rgb(164,164,210);
+    width: 100%;
+    text-align: left;
     height: 40px;
     font-size: 1em;
     padding-left: 20%;
