@@ -194,7 +194,7 @@ def makeContribution(file_list,contributers_list):
     jsonfile.write(json)
     jsonfile.close()
 
-    return mod.draw(json)
+    return mod.make_3d_graph(json)
 #--------------------
 # To get all the users of a project  
 # that talked on an issue            
@@ -297,7 +297,7 @@ def makeComments(issueList,userList):
     jsonfile.write(json)
     jsonfile.close()
 
-    return mod.draw(json)
+    return mod.make_3d_graph(json)
 #--------------------
 def finalJson(file_list,contributers_list,issueList,userList):
 
