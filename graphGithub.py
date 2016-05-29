@@ -190,9 +190,9 @@ def makeContribution(file_list,contributers_list):
     # Display the 3D graph 1 #
     ##########################
 
-    jsonfile = open(fileName, "wb+")
-    jsonfile.write(json)
-    jsonfile.close()
+    # jsonfile = open(fileName, "wb+")
+    # jsonfile.write(json)
+    # jsonfile.close()
 
     return mod.make_3d_graph(json)
 #--------------------
@@ -293,9 +293,9 @@ def makeComments(issueList,userList):
     json=json+'],"max1":'+str(max_user_comment)+',"max2":'+str(max_file_comment)+'}'
     print '\033[92m'+" ok"+'\033[0m'
 
-    jsonfile = open(fileName, "wb+")
-    jsonfile.write(json)
-    jsonfile.close()
+    # jsonfile = open(fileName, "wb+")
+    # jsonfile.write(json)
+    # jsonfile.close()
 
     return mod.make_3d_graph(json)
 #--------------------
@@ -370,9 +370,9 @@ def finalJson(file_list,contributers_list,issueList,userList):
     json=json+']}'
     print '\033[92m'+" ok"+'\033[0m'
 
-    jsonfile = open(fileName, "wb+")
-    jsonfile.write(json)
-    jsonfile.close()
+    # jsonfile = open(fileName, "wb+")
+    # jsonfile.write(json)
+    # jsonfile.close()
     
 
     print "[finished]", '\033[0m'

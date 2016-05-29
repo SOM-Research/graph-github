@@ -72,14 +72,13 @@ def contribution(file):
 	max_eb = max(ebs)
 	metrics['betweenness']=[Graph.es[idx].tuple for idx, eb in enumerate(ebs) if eb == max_eb]
 
-	print metrics
-	return metrics
-
 	visual=False
 
 	if visual:
 		
 		plot(Graph, **visual_style)
+
+	return metrics
 	
 
 if __name__ == "__main__":
