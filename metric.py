@@ -52,7 +52,7 @@ def contribution(file):
 	Graph=ig.Graph(table, directed=False)
 
 
-	
+	metrics={}
 
 	Graph.vs["name"] = name_list
 
@@ -66,11 +66,16 @@ def contribution(file):
 	visual_style["bbox"] = (wi, wi)
 	visual_style["margin"] = (wi/10)
 
-	Graph.vs.select(_degree = Graph.maxdegree())["name"]
+	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
 
+	ebs = Graph.edge_betweenness()
+	max_eb = max(ebs)
+	metrics['betweenness']=[Graph.es[idx].tuple for idx, eb in enumerate(ebs) if eb == max_eb]
 
+	print metrics
+	return metrics
 
-	visual=True
+	visual=False
 
 	if visual:
 		

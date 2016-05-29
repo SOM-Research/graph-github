@@ -454,7 +454,6 @@ def Prepare(puser,pp,porg,prepo):
 def graphContribution():
     global file_list
     global contributers_list
-    global repo_content
 
     
     contributers_list={}
@@ -475,10 +474,6 @@ def graphComments():
     return layout2, data2
 
 def graphMetrics():
-    global file_list
-    global contributers_list
-    global issueList
-    global userList
 
     rep = finalJson(file_list,contributers_list,issueList,userList)
 
