@@ -52,6 +52,115 @@ function runScript(){
                 var repo_exists=result.repo_exists;
                 var message=result.message;
                 $("#message").html(message);
+
+                $("#title").html($("#repo").val());
+
+                $.ajax({
+                    url: "http://localhost:5000/getCont", 
+                    success: function(result){
+                        console.log('success');
+
+                        var layout=result.layout;
+                        var data=result.data;
+
+                        $("#slides").hide();
+                        $(".Explenations").hide();
+                        $("#graph1").show();
+
+                        Plotly.newPlot('graph1', data, layout);
+                        $("#cont").show();
+
+                        $.ajax({
+                            url: "http://localhost:5000/getComm", 
+                            success: function(result){
+                                console.log('success');
+
+                                var layout=result.layout;
+                                var data=result.data;
+
+                                $("#graph1").hide();
+                                $("#slides").hide();
+                                $(".Explenations").hide();
+                                $("#graph2").show();
+
+                                Plotly.newPlot('graph2', data, layout);
+                                $("#comm").show();
+
+                                $("#graph2").hide();
+                                $("#graph1").show();
+
+                                $.ajax({
+                                    url: "http://localhost:5000/getAll",
+                                    success: function(result){
+                                        console.log('success');
+
+                                        var max_degree=result.max_degree;
+                                        var node_betweenness=result.node_betweenness;
+                                        var edge_betweenness=result.edge_betweenness;
+
+
+                                        var content="<div class='Explenations'><h2>Informations</h2><br><h3>Maximum degree (most connected): </h3>"
+                                        for (i in max_degree) {content=content+'<br>'+max_degree[i]}
+                                        content=content+"<br><br><h3>Centrality: </h3>"
+                                        for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
+                                        content=content+"<br><br><h3>Edge betweenness (most frequented path): </h3>"
+                                        for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
+                                        content=content+"</div>"
+
+                                        $("#graph1").hide();
+                                        $("#slides").hide();
+                                        $(".Explenations").hide();
+                                        $("#metrics").show();
+
+                                        $("#metrics").html(content);
+                                        $("#met").show();
+
+                                        $("#metrics").hide();
+                                        $("#graph1").show();
+                                        $("#JsonFile").show();
+
+                                    },
+                                    error: function(error,status){
+                                        console.log('error');
+                                        console.log(status);
+
+                                        $("#graph1").hide();
+                                        $("#slides").show();
+                                        $("#slides").html('<img src="static/error.svg"/>');
+
+                                    },
+                                    complete: function(error,status){
+                                        console.log('complete');
+                                        console.log(status);
+                                    }
+                                });
+                            },
+                            error: function(error,status){
+                                console.log('error');
+                                console.log(status);
+
+                                $("#graph1").hide();
+                                $("#slides").show();
+                                $("#slides").html('<img src="static/error.svg"/>');
+
+                            },
+                            complete: function(error,status){
+                                console.log('complete');
+                                console.log(status);
+                            }
+                        });
+                    },
+                    error: function(error,status){
+                        console.log('error');
+                        console.log(status);
+                        $("#slides").html('<img src="static/error.svg"/>');
+
+                    },
+                    complete: function(error,status){
+                        console.log('complete');
+                        console.log(status);
+                    }
+                });
             },
             error: function(error,status){
                 console.log('error');
@@ -65,104 +174,11 @@ function runScript(){
             }
         });
         
-        $("#title").html($("#repo").val());
+        
 
-        $.ajax({
-            url: "http://localhost:5000/getCont", 
-            success: function(result){
-                console.log('success');
-
-                var layout=result.layout;
-                var data=result.data;
-
-                $("#slides").hide();
-                $(".Explenations").hide();
-                $("#graph1").show();
-
-                Plotly.newPlot('graph1', data, layout);
-                $("#cont").show();
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-                $("#slides").html('<img src="static/error.svg"/>');
-
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
-        $.ajax({
-            url: "http://localhost:5000/getComm", 
-            success: function(result){
-                console.log('success');
-
-                var layout=result.layout;
-                var data=result.data;
-
-                $("#graph1").hide();
-                $("#slides").hide();
-                $(".Explenations").hide();
-                $("#graph2").show();
-
-                Plotly.newPlot('graph2', data, layout);
-                $("#comm").show();
-
-                $("#graph2").hide();
-                $("#graph1").show();
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-
-                $("#graph1").hide();
-                $("#slides").show();
-                $("#slides").html('<img src="static/error.svg"/>');
-
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
-        $.ajax({
-            url: "http://localhost:5000/getAll",
-            success: function(result){
-                console.log('success');
-
-                var max_degree=result.max_degree;
-                var betweenness=result.betweenness;
-
-                var content="<div class='Explenations'><h2>Informations</h2><br><h3>Maximum degree (between contributors): </h3>"+max_degree+"<br><h3>Edge betweenness: </h3>"+betweenness+"</div>"
-
-                $("#graph1").hide();
-                $("#slides").hide();
-                $(".Explenations").hide();
-                $("#metrics").show();
-
-                $("#metrics").html(content);
-                $("#met").show();
-
-                $("#metrics").hide();
-                $("#graph1").show();
-                $("#JsonFile").show();
-
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-
-                $("#graph1").hide();
-                $("#slides").show();
-                $("#slides").html('<img src="static/error.svg"/>');
-
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
+        
+        
+        
         url="";
         cemaphore=true;
 };

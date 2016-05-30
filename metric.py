@@ -68,11 +68,18 @@ def contribution(file):
 
 	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
 
+	metrics['node_betweenness']=Graph.vs.select(_betweenness = max(Graph.betweenness()))['name']
+
 	ebs = Graph.edge_betweenness()
 	max_eb = max(ebs)
-	metrics['betweenness']=[Graph.es[idx].tuple for idx, eb in enumerate(ebs) if eb == max_eb]
+	edge_list=[]
+	for idx, eb in enumerate(ebs):
+		if eb == max_eb:
+			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'],eb))
+	metrics['edge_betweenness']=edge_list
 
-	visual=False
+
+	visual=True
 
 	if visual:
 		
