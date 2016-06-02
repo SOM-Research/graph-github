@@ -13,7 +13,7 @@ def contribution(file):
 
 	data = json.loads(file)
 
-	fileName=file+'graph.png'
+	fileName=data['repository']+".graph.svg"
 	commiter_list={}
 	name_list=[]
 	Edges={}
@@ -51,9 +51,6 @@ def contribution(file):
 
 	Graph=ig.Graph(table, directed=False)
 
-
-	metrics={}
-
 	Graph.vs["name"] = name_list
 
 	# layout = Graph.layout("kk")
@@ -66,6 +63,8 @@ def contribution(file):
 	visual_style["bbox"] = (wi, wi)
 	visual_style["margin"] = (wi/10)
 
+	metrics={'data':table,'labels':name_list}
+
 	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
 
 	metrics['node_betweenness']=Graph.vs.select(_betweenness = max(Graph.betweenness()))['name']
@@ -75,15 +74,15 @@ def contribution(file):
 	edge_list=[]
 	for idx, eb in enumerate(ebs):
 		if eb == max_eb:
-			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'],eb))
+			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name']))
 	metrics['edge_betweenness']=edge_list
 
 
 	visual=True
-
+	print fileName
 	if visual:
 		
-		plot(Graph, **visual_style)
+		plot(Graph,fileName, **visual_style)
 
 	return metrics
 	

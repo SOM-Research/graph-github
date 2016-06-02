@@ -11,9 +11,8 @@ function runScript(){
             alert("Server is busy, wait for the end of you request first")
             return false;
         }
-
         if ($("#user").val()!='' && $("#pass").val()=='') {
-            alert("Password is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
+            alert("Identification is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
             return false;
         }
         if ($("#org").val()=='') {
@@ -30,21 +29,19 @@ function runScript(){
 
 
         $("#message").html('Authentication...');
-        $("#JsonFile").hide();
+        $("#json").hide();
         $("#comm").hide();
         $("#cont").hide();
-        $("#met").hide();
         $("#graph1").hide();
-        $("#metrics").hide();
+        $("#metrics1").hide();
         $("#graph2").hide();
+        $("#metrics2").hide();
         $("#slides").show();
                 
         $("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
 
-        var url="http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val();
-
         $.ajax({
-            url: url, 
+            url: "http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
             success: function(result){
                 console.log('success');
 
@@ -98,26 +95,28 @@ function runScript(){
                                         var node_betweenness=result.node_betweenness;
                                         var edge_betweenness=result.edge_betweenness;
 
+                                        var data=result.data;
+
 
                                         var content="<div class='Explenations'><h2>Informations</h2><br><h3>Maximum degree (most connected): </h3>"
                                         for (i in max_degree) {content=content+'<br>'+max_degree[i]}
                                         content=content+"<br><br><h3>Centrality: </h3>"
                                         for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
-                                        content=content+"<br><br><h3>Edge betweenness (most frequented path): </h3>"
+                                        content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
                                         for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
                                         content=content+"</div>"
+                                    
 
                                         $("#graph1").hide();
+                                        $("#graph2").hide();
                                         $("#slides").hide();
                                         $(".Explenations").hide();
-                                        $("#metrics").show();
-
-                                        $("#metrics").html(content);
-                                        $("#met").show();
-
-                                        $("#metrics").hide();
                                         $("#graph1").show();
-                                        $("#JsonFile").show();
+                                        $("#metrics1").show();
+
+                                        $("#metrics1").html(content);
+
+                                        $("#json").show();
 
                                     },
                                     error: function(error,status){
@@ -125,6 +124,7 @@ function runScript(){
                                         console.log(status);
 
                                         $("#graph1").hide();
+                                        $("#graph2").hide();
                                         $("#slides").show();
                                         $("#slides").html('<img src="static/error.svg"/>');
 
@@ -174,11 +174,6 @@ function runScript(){
             }
         });
         
-        
-
-        
-        
-        
         url="";
         cemaphore=true;
 };
@@ -194,20 +189,16 @@ $(document).ready(function(){
     $("#cont").click(function(){
     	$("#slides").hide();
     	$("#graph2").hide();
-    	$("#metrics").hide();
+    	$("#metrics2").hide();
     	$("#graph1").show();
+    	$("#metrics1").show();
     });
     $("#comm").click(function(){
     	$("#slides").hide();
     	$("#graph1").hide();
-    	$("#metrics").hide();
+    	$("#metrics1").hide();
     	$("#graph2").show();
-    });
-    $("#met").click(function(){
-    	$("#slides").hide();
-    	$("#graph2").hide();
-    	$("#graph1").hide();
-    	$("#metrics").show();
+    	$("#metrics2").show();
     });
 });
 </script>
@@ -222,12 +213,15 @@ $(document).ready(function(){
     <button id="submit">Go</button>
 </div>
 <div id=message>Github API limits annonimous requests. Connect with your Github logins to disable limitation.</div>
+<div id="prompt">
+	<button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=json>Download</button>
+</div>
 <div id="container">
 	<div id="slides"><img src="static/dessin.svg"/></div>
     <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
     <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
-    <div id="metrics"><div class="Explenations"><h2>About metrics</h2></div></div>
-    <div id="prompt"><button class="col" id=cont>Contribution</button><button class="col" id=comm>Comments</button><button class="col" id=met>Metrics</button><div id='JsonFile'><button class="col" id=json>Download</button></div></div>
+    <div id="metrics1"><div class="Explenations"><h2>About metrics1</h2></div></div>
+    <div id="metrics2"><div class="Explenations"><h2>About metrics2</h2></div></div>
 </div>
 </body>
 </html>

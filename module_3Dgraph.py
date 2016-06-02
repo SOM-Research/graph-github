@@ -67,22 +67,22 @@ def make_3d_graph(json_file):
 		type_2='Files '
 		if max_1==0 and max_2==0:
 			for node in data['nodes']:
-			    if node['type']=='user' and int(node['commits'])>max_1:
-			    	max_1=int(node['commits'])
-			    elif int(node['commits'])>max_2:
-			    	max_2=int(node['commits'])
+				if node['type']=='user' and int(node['commits'])>max_1:
+					max_1=int(node['commits'])
+				elif int(node['commits'])>max_2:
+					max_2=int(node['commits'])
 
 		for node in data['nodes']:
 		  if node['type']=='user':
-		  	labels_1.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
-		  	nu+=1
-		  	group_1.append(log(int(node['commits'])+1,20))
-		  	value_1.append((int(node['commits'])*20/max_1)+10)
+			labels_1.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
+			nu+=1
+			group_1.append(log(int(node['commits'])+1,20))
+			value_1.append((int(node['commits'])*20/max_1)+10)
 		  else:
-		  	labels_2.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
-		  	nf+=1
-		  	group_2.append(1)
-		  	value_2.append((int(node['commits'])*20/max_2)+8)
+			labels_2.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
+			nf+=1
+			group_2.append(1)
+			value_2.append((int(node['commits'])*20/max_2)+8)
 
 
 	elif graph_type=='comments':
@@ -90,22 +90,22 @@ def make_3d_graph(json_file):
 		type_2='Issues '
 		if max_1==0 and max_2==0:
 			for node in data['nodes']:
-			    if node['type']=='commenter' and int(node['comments'])>max_1:
-			    	max_1=int(node['comments'])
-			    elif int(node['comments'])>max_2:
-			    	max_2=int(node['comments'])
+				if node['type']=='commenter' and int(node['comments'])>max_1:
+					max_1=int(node['comments'])
+				elif int(node['comments'])>max_2:
+					max_2=int(node['comments'])
 
 		for node in data['nodes']:
 		  if node['type']=='commenter':
-		  	labels_1.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
-		  	nu+=1
-		  	group_1.append(log(int(node['comments'])+1,20))
-		  	value_1.append((int(node['comments'])*40/max_1)+12)
+			labels_1.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
+			nu+=1
+			group_1.append(log(int(node['comments'])+1,20))
+			value_1.append((int(node['comments'])*40/max_1)+12)
 		  else:
-		  	labels_2.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
-		  	nf+=1
-		  	group_2.append(1)
-		  	value_2.append((int(node['comments'])*20/max_2)+10)
+			labels_2.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
+			nf+=1
+			group_2.append(1)
+			value_2.append((int(node['comments'])*20/max_2)+10)
 
 
 	print '\033[92m'+" ok"+'\033[0m'
@@ -126,9 +126,9 @@ def make_3d_graph(json_file):
 	Ye=[]
 	Ze=[]
 	for e in Edges:
-	    Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
-	    Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
-	    Ze+=[layt[e[0]][2],layt[e[1]][2], None]
+		Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
+		Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
+		Ze+=[layt[e[0]][2],layt[e[1]][2], None]
 
 
 	print '\033[92m'+" ok"+'\033[0m'
@@ -136,80 +136,80 @@ def make_3d_graph(json_file):
 	print "[draw]"+'\033[95m'
 	print '    links', len(Xe)/3
 	trace1=Scatter3d(x=Xe,
-	               y=Ye,
-	               z=Ze,
-	               mode='lines',
-	               name='Links',
-	               line=Line(color='#AAAAAA', width='0.4'),
-	               text=labels_links,
-	               hoverinfo='text'
-	               )
+				   y=Ye,
+				   z=Ze,
+				   mode='lines',
+				   name='Links',
+				   line=Line(color='#AAAAAA', width='0.4'),
+				   text=labels_links,
+				   hoverinfo='text'
+				   )
 	print '    trace1', len(Xnu)
 	trace2=Scatter3d(x=Xnu,
-	               y=Ynu,
-	               z=Znu,  
-	               mode='markers',
-	               name=type_1+str(nu),
-	               marker=Marker(symbol='dot',
-	                             size=value_1, 
-	                             color=group_1, 
-	                             colorscale='Viridis',
-	                             line=Line(color='rgb(50,50,50)', width=0)
-	                             ),
-	               text=labels_1,
-	               hoverinfo='text'
-	               )
+				   y=Ynu,
+				   z=Znu,  
+				   mode='markers',
+				   name=type_1+str(nu),
+				   marker=Marker(symbol='dot',
+								 size=value_1, 
+								 color=group_1, 
+								 colorscale='Viridis',
+								 line=Line(color='rgb(50,50,50)', width=0)
+								 ),
+				   text=labels_1,
+				   hoverinfo='text'
+				   )
 	print '    trace2', len(Xnf),'\033[0m'
 	trace3=Scatter3d(x=Xnf,
-	               y=Ynf,
-	               z=Znf,  
-	               mode='markers',
-	               name=type_2+str(nf),
-	               marker=Marker(symbol='square',
-	                             size=value_2, 
-	                             color='#0074D9', 
-	                             colorscale='Viridis',
-	                             line=Line(color='rgb(50,50,50)', width=0)
-	                             ),
-	               text=labels_2,
-	               hoverinfo='text'
-	               )
+				   y=Ynf,
+				   z=Znf,  
+				   mode='markers',
+				   name=type_2+str(nf),
+				   marker=Marker(symbol='square',
+								 size=value_2, 
+								 color='#0074D9', 
+								 colorscale='Viridis',
+								 line=Line(color='rgb(50,50,50)', width=0)
+								 ),
+				   text=labels_2,
+				   hoverinfo='text'
+				   )
 
 	axis=dict(showbackground=False,
-	          showline=False,  
-	          zeroline=False,
-	          showgrid=False,
-	          showticklabels=False,
-	          title='' 
-	          )
+			  showline=False,  
+			  zeroline=False,
+			  showgrid=False,
+			  showticklabels=False,
+			  title='' 
+			  )
 
 	layout = Layout(
 			 title=graph_title, 
-	         showlegend=True,
-	         scene=Scene(  
-	         xaxis=XAxis(axis,showspikes=False),
-	         yaxis=YAxis(axis,showspikes=False), 
-	         zaxis=ZAxis(axis,showspikes=False), 
-	        ),
-	     margin=Margin(
-	        t=100
-	    ),
-	    hovermode='closest',
-	    annotations=Annotations([
-	           Annotation(
-	           showarrow=False, 
-	            text=graph_legend,
-	            xref='paper',     
-	            yref='paper',     
-	            x=0,  
-	            y=0.1,  
-	            xanchor='left',   
-	            yanchor='bottom',  
-	            font=Font(
-	            size=14 
-	            )     
-	            )
-	        ]),    )
+			 showlegend=True,
+			 scene=Scene(  
+			 xaxis=XAxis(axis,showspikes=False),
+			 yaxis=YAxis(axis,showspikes=False), 
+			 zaxis=ZAxis(axis,showspikes=False), 
+			),
+		 margin=Margin(
+			t=100
+		),
+		hovermode='closest',
+		annotations=Annotations([
+			   Annotation(
+			   showarrow=False, 
+				text=graph_legend,
+				xref='paper',     
+				yref='paper',     
+				x=0,  
+				y=0.1,  
+				xanchor='left',   
+				yanchor='bottom',  
+				font=Font(
+				size=14 
+				)     
+				)
+			]),    )
 
 	data=Data([trace1, trace2, trace3])
 	
@@ -222,7 +222,6 @@ def make_3d_graph(json_file):
 	# return the data and the layout to JS
 
 	return layout, data
-
 
 
 	
