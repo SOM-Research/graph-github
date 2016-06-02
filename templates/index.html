@@ -91,22 +91,6 @@ function runScript(){
                                     success: function(result){
                                         console.log('success');
 
-                                        var max_degree=result.max_degree;
-                                        var node_betweenness=result.node_betweenness;
-                                        var edge_betweenness=result.edge_betweenness;
-
-                                        var data=result.data;
-
-
-                                        var content="<div class='Explenations'><h2>Informations</h2><br><h3>Maximum degree (most connected): </h3>"
-                                        for (i in max_degree) {content=content+'<br>'+max_degree[i]}
-                                        content=content+"<br><br><h3>Centrality: </h3>"
-                                        for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
-                                        content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
-                                        for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
-                                        content=content+"</div>"
-                                    
-
                                         $("#graph1").hide();
                                         $("#graph2").hide();
                                         $("#slides").hide();
@@ -114,7 +98,25 @@ function runScript(){
                                         $("#graph1").show();
                                         $("#metrics1").show();
 
+                                        var max_degree=result.max_degree;
+                                        var node_betweenness=result.node_betweenness;
+                                        var edge_betweenness=result.edge_betweenness;
+                                        var layout=result.layout;
+                                        var data=result.data;
+
+
+                                        var content="<div class='Metrics'><h2>Metrics</h2><br><h3>Bus Factor: </h3>"
+                                        content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
+                                        for (i in max_degree) {content=content+'<br>'+max_degree[i]}
+                                        content=content+"<br><br><h3>Centrality: </h3>"
+                                        for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
+                                        content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
+                                        for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
+                                        content=content+"</div><div id='graphMetrics1'></div></div>"
+
                                         $("#metrics1").html(content);
+
+                                        Plotly.newPlot('graphMetrics1', data, layout);
 
                                         $("#json").show();
 
@@ -209,7 +211,7 @@ $(document).ready(function(){
     <input id="user" type="text" name="user" value="AlexFabre" required>
     <input id="pass" type="password" name="pass" value="Srp043k1" required>
     <input id="org" type="text" name="org" value="twbs" required>
-    <input id="repo" type="text" name="repo" value="bootlint" required>
+    <input id="repo" type="text" name="repo" value="grunt-bootlint" required>
     <button id="submit">Go</button>
 </div>
 <div id=message>Github API limits annonimous requests. Connect with your Github logins to disable limitation.</div>
@@ -218,8 +220,8 @@ $(document).ready(function(){
 </div>
 <div id="container">
 	<div id="slides"><img src="static/dessin.svg"/></div>
-    <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.</div></div>
-    <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.</div></div>
+    <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.<img src="static/ex_contribution.png"></div></div>
+    <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.<img src="static/ex_comment.png"></div></div>
     <div id="metrics1"><div class="Explenations"><h2>About metrics1</h2></div></div>
     <div id="metrics2"><div class="Explenations"><h2>About metrics2</h2></div></div>
 </div>

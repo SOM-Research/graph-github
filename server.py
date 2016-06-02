@@ -58,3 +58,5 @@ if __name__ == "__main__":
 	url_for('static', filename='dessin.svg')
 	url_for('static', filename='error.svg')
 	url_for('static', filename='unknown.gif')
+	url_for('static', filename='ex_comment.png')
+	url_for('static', filename='ex_contribution.png')

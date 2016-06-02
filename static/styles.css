@@ -117,7 +117,7 @@ input:hover
 img
 {
     width: 100%;
-    height:100%;
+    max-width: 900px;
 }
 .Explenations
 {
@@ -125,6 +125,12 @@ img
     padding-left: 10%;
     padding-right: 10%;
     padding-bottom: 50px;
+}
+.Metrics
+{
+    float: left;
+    width: 25%;
+    padding:5%;
 }
 #loadcont
 {
@@ -145,6 +151,7 @@ img
     width: 100%;
     height: 100%;
     background-color: white;
+    text-align: center;
 }
 #graph1
 {
@@ -171,4 +178,10 @@ img
     display: none;
     width: 100%;
     background-color: white;
+}
+#graphMetrics1
+{
+    float: left;
+    width: 65%;
+    height: 100%;
 }
