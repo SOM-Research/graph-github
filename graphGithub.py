@@ -370,10 +370,14 @@ def finalJson(file_list,contributers_list,issueList,userList):
 	json=json+']}'
 	print '\033[92m'+" ok"+'\033[0m'
 
-	# jsonfile = open(fileName, "wb+")
-	# jsonfile.write(json)
-	# jsonfile.close()
-	
+	try:
+		jsonfile = open(fileName)
+		print "Json file exists !"
+	except Exception, e:
+		jsonfile = open(fileName, "wb+")
+		jsonfile.write(json)
+		jsonfile.close()
+		print "Json file created !"
 
 	print "[finished]", '\033[0m'
 

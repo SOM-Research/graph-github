@@ -40,9 +40,9 @@ def make_3d_graph(json_file):
 	test=[]
 	for link in data['links']:
 		Edges.append((link['source'], link['target']))
-		labels_links.append(link['value'])
-		labels_links.append(link['value'])
-		labels_links.append(link['value']) # The 3D representation require for each link 3 "labels". Here I want to show on mouseover the number of commits or comments, so the three values are the same.
+		labels_links.append(str(link['value'])+" commits")
+		labels_links.append(str(link['value'])+" commits")
+		labels_links.append(str(link['value'])+" commits") # The 3D representation require for each link 3 "labels". Here I want to show on mouseover the number of commits or comments, so the three values are the same.
 
 
 	G=ig.Graph(Edges, directed=False) # graph object
@@ -100,12 +100,12 @@ def make_3d_graph(json_file):
 			labels_1.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
 			nu+=1
 			group_1.append(log(int(node['comments'])+1,20))
-			value_1.append((int(node['comments'])*40/max_1)+12)
+			value_1.append((int(node['comments'])*40/max_1)+10)
 		  else:
 			labels_2.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
 			nf+=1
 			group_2.append(1)
-			value_2.append((int(node['comments'])*20/max_2)+10)
+			value_2.append((int(node['comments'])*20/max_2)+8)
 
 
 	print '\033[92m'+" ok"+'\033[0m'
@@ -140,7 +140,7 @@ def make_3d_graph(json_file):
 				   z=Ze,
 				   mode='lines',
 				   name='Links',
-				   line=Line(color='#AAAAAA', width='0.4'),
+				   line=Line(color='#D3D3F9', width='1'),
 				   text=labels_links,
 				   hoverinfo='text'
 				   )
@@ -187,9 +187,9 @@ def make_3d_graph(json_file):
 			 title=graph_title, 
 			 showlegend=True,
 			 scene=Scene(  
-			 xaxis=XAxis(axis,showspikes=False),
-			 yaxis=YAxis(axis,showspikes=False), 
-			 zaxis=ZAxis(axis,showspikes=False), 
+				 xaxis=XAxis(axis,showspikes=False),
+				 yaxis=YAxis(axis,showspikes=False), 
+				 zaxis=ZAxis(axis,showspikes=False), 
 			),
 		 margin=Margin(
 			t=100

@@ -52,8 +52,10 @@ def getAllRepo():
 
 
 if __name__ == "__main__":
-    app.run()
-    url_for('static', filename='styles.css')
-    url_for('static', filename='dessin.svg')
-    url_for('static', filename='error.svg')
-    url_for('static', filename='unknown.gif')
+	app.run()
+	url_for('static', filename='styles.css')
+	url_for('static', filename='dessin.svg')
+	url_for('static', filename='error.svg')
+	url_for('static', filename='unknown.gif')
+	url_for('static', filename='ex_comment.png')
+	url_for('static', filename='ex_contribution.png')
