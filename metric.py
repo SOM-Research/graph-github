@@ -8,7 +8,8 @@ from plotly.graph_objs import *
 
 
 def contribution(file):
-		
+
+
 	# Degree of Authorship (DOA) = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
 	# first authorship (FA), number of deliveries (DL), number of acceptances (AC)
 
@@ -16,7 +17,6 @@ def contribution(file):
 
 	data = json.loads(file)
 
-	fileName=data['repository']+".graph.svg"
 	commiter_list={}
 	name_list=[]
 	Edges={}
@@ -26,26 +26,27 @@ def contribution(file):
 		file_list={}
 		author=file['author']
 		for commiter in file['commiters']:
-			if commiter_list.has_key(commiter['login']):
-				pass
-			else:
-				commiter_list[commiter['login']]={'num':num,'FA':0,'DL':0,'AC':0}
-				name_list.append(commiter['login'])
-				num+=1
-			if cemaphore:
-				file_list[commiter['login']]=commiter_list[commiter['login']]['num']
-				cemaphore=False
-			else:
-				for login in file_list:
-					if commiter_list[commiter['login']]['num']<file_list[login]:
-						one=commiter_list[commiter['login']]['num']
-						two=file_list[login]
-					else:
-						one=file_list[login]
-						two=commiter_list[commiter['login']]['num']
+			if commiter['commits']>1:
+				if commiter_list.has_key(commiter['login']):
+					pass
+				else:
+					commiter_list[commiter['login']]={'num':num,'FA':0,'DL':0,'AC':0}
+					name_list.append(commiter['login'])
+					num+=1
+				if cemaphore:
+					file_list[commiter['login']]=commiter_list[commiter['login']]['num']
+					cemaphore=False
+				else:
+					for login in file_list:
+						if commiter_list[commiter['login']]['num']<file_list[login]:
+							one=commiter_list[commiter['login']]['num']
+							two=file_list[login]
+						else:
+							one=file_list[login]
+							two=commiter_list[commiter['login']]['num']
 
-					Edges[(one,two)]={'one':one,'two':two,'size':1}
-				file_list[commiter['login']]=commiter_list[commiter['login']]['num']
+						Edges[(one,two)]={'one':one,'two':two,'size':1}
+					file_list[commiter['login']]=commiter_list[commiter['login']]['num']
 
 	table=[]
 	for couple in Edges:
@@ -117,7 +118,7 @@ def contribution(file):
 								 line=Line(color='rgb(50,50,50)', width=0)
 								 ),
 				   text=labels,
-				   hoverinfo='text'
+				   hoverinfo=''
 				   )
 	axis=dict(showline=False, # hide axis line, grid, ticklabels and  title
 		  zeroline=False,
@@ -125,9 +126,9 @@ def contribution(file):
 		  showticklabels=False,
 		  title=''
 		  )
-	layout=Layout(title= "Network of contributers",
+	layout=Layout(title= "Network of contributers (if they worked on the same file and have more than one commit):",
 		font= Font(size=12),
-		showlegend=True,
+		showlegend=False,
 		xaxis=XAxis(axis),
 		yaxis=YAxis(axis),
 		margin=Margin(

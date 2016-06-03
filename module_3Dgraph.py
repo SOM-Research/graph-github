@@ -77,12 +77,12 @@ def make_3d_graph(json_file):
 			labels_1.append(node['login']+" ("+node['id']+") : "+node['commits']+" commits")
 			nu+=1
 			group_1.append(log(int(node['commits'])+1,20))
-			value_1.append((int(node['commits'])*20/max_1)+12)
+			value_1.append((int(node['commits'])*20/max_1)+10)
 		  else:
 			labels_2.append(node['name']+" ("+node['type']+" ) : "+node['commits']+" commits")
 			nf+=1
 			group_2.append(1)
-			value_2.append((int(node['commits'])*20/max_2)+10)
+			value_2.append((int(node['commits'])*20/max_2)+8)
 
 
 	elif graph_type=='comments':
@@ -100,12 +100,12 @@ def make_3d_graph(json_file):
 			labels_1.append(node['login']+" ("+node['id']+") : "+node['comments']+" comments")
 			nu+=1
 			group_1.append(log(int(node['comments'])+1,20))
-			value_1.append((int(node['comments'])*40/max_1)+12)
+			value_1.append((int(node['comments'])*40/max_1)+10)
 		  else:
 			labels_2.append(node['type']+" ("+node['number']+" ) : "+node['comments']+" comments")
 			nf+=1
 			group_2.append(1)
-			value_2.append((int(node['comments'])*20/max_2)+10)
+			value_2.append((int(node['comments'])*20/max_2)+8)
 
 
 	print '\033[92m'+" ok"+'\033[0m'
