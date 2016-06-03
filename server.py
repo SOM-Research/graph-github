@@ -12,7 +12,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route("/log")
+@app.route("/log",methods=['GET', 'POST'])
 def login():
     user = request.values.get('user')
     p = request.values.get('pass')
