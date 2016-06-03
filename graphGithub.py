@@ -326,10 +326,10 @@ def finalJson(file_list,contributers_list,issueList,userList):
 		cemaphore=True
 		for contributor in file_list[file]['committers']:
 			if cemaphore:
-				json=json+'{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiters-info":['
+				json=json+'{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"total-commits":'+str(contributers_list[contributor]['commits'])+',"file-commits":'+str(file_list[file]['committers'][contributor])+',"commiters-info":['
 				cemaphore=False
 			else:
-				json=json+',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"commits":'+str(file_list[file]['committers'][contributor])+',"commiter-info":['
+				json=json+',{"login":"'+str(contributers_list[contributor]['login'])+'","num":"'+str(contributers_list[contributor]['num'])+'","url":"'+str(contributers_list[contributor]['url'])+'","id":'+str(contributers_list[contributor]['id'])+',"total-commits":'+str(contributers_list[contributor]['commits'])+',"file-commits":'+str(file_list[file]['committers'][contributor])+',"commiter-info":['
 			num+=1
 
 			cemaphore=True

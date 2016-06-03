@@ -47,6 +47,7 @@ def make_3d_graph(json_file):
 
 	G=ig.Graph(Edges, directed=False) # graph object
 
+	print Edges
 
 	#-------------------------------------------------
 	# All the graph documentation on plotly web page 
