@@ -7,212 +7,200 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 <script>
 function runScript(){
-        if (cemaphore=false) {
-            alert("Server is busy, wait for the end of you request first")
-            return false;
-        }
-        if ($("#user").val()!='' && $("#pass").val()=='') {
-            alert("Identification is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
-            return false;
-        }
-        if ($("#org").val()=='') {
-            alert('Organisation is missing');
-            return false;
-        }
-        if ($("#repo").val()=='') {
-            alert('Repository is missing');
-            return false;
-        }
+		if (cemaphore=false) {
+			alert("Server is busy, wait for the end of you request first")
+			return false;
+		}
+		if ($("#user").val()!='' && $("#pass").val()=='') {
+			alert("Identification is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
+			return false;
+		}
+		if ($("#org").val()=='') {
+			alert('Organisation is missing');
+			return false;
+		}
+		if ($("#repo").val()=='') {
+			alert('Repository is missing');
+			return false;
+		}
 
 
-        cemaphore=false;
+		cemaphore=false;
 
 
-        $("#message").html('Authentication...');
-        $("#json").hide();
-        $("#comm").hide();
-        $("#cont").hide();
-        $("#graph1").hide();
-        $("#metrics1").hide();
-        $("#graph2").hide();
-        $("#metrics2").hide();
-        $("#slides").show();
-                
-        $("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
+		$("#message").html('Authentication...');
+		$("#json").hide();
+		$("#comm").hide();
+		$("#cont").hide();
+		$("#graph1").hide();
+		$("#metrics1").hide();
+		$("#graph2").hide();
+		$("#metrics2").hide();
+		$("#slides").show();
+				
+		$("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
 
-        $.ajax({
-            url: "http://localhost:5000/log?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
-            success: function(result){
-                console.log('success');
+		$.ajax({
+			url: "http://localhost:5000/getCont?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+			success: function(result){
+				console.log('success');
 
-                var login_succeded=result.login_succeded;
-                var repo_exists=result.repo_exists;
-                var message=result.message;
-                $("#message").html(message);
+				var login_succeded=result.login_succeded;
+				var repo_exists=result.repo_exists;
+				var message=result.message;
+				$("#message").html(message);
 
-                $("#title").html($("#repo").val());
+				var layout=result.layout_3D;
+				var data=result.data_3D;
 
-                $.ajax({
-                    url: "http://localhost:5000/getCont", 
-                    success: function(result){
-                        console.log('success');
+				$("#slides").hide();
+				$(".Explenations").hide();
+				$("#graph1").show();
 
-                        var layout=result.layout;
-                        var data=result.data;
+				Plotly.newPlot('graph1', data, layout);
+				$("#cont").show();
+				$("#metrics1").show();
 
-                        $("#slides").hide();
-                        $(".Explenations").hide();
-                        $("#graph1").show();
+				var max_degree=result.max_degree;
+				var node_betweenness=result.node_betweenness;
+				var edge_betweenness=result.edge_betweenness;
+				var layout=result.layout_metrics;
+				var data=result.data_metrics;
 
-                        Plotly.newPlot('graph1', data, layout);
-                        $("#cont").show();
-
-                        $.ajax({
-                            url: "http://localhost:5000/getComm", 
-                            success: function(result){
-                                console.log('success');
-
-                                var layout=result.layout;
-                                var data=result.data;
-
-                                $("#graph1").hide();
-                                $("#slides").hide();
-                                $(".Explenations").hide();
-                                $("#graph2").show();
-
-                                Plotly.newPlot('graph2', data, layout);
-                                $("#comm").show();
-
-                                $("#graph2").hide();
-                                $("#graph1").show();
-
-                                $.ajax({
-                                    url: "http://localhost:5000/getAll",
-                                    success: function(result){
-                                        console.log('success');
-
-                                        $("#graph1").hide();
-                                        $("#graph2").hide();
-                                        $("#slides").hide();
-                                        $(".Explenations").hide();
-                                        $("#graph1").show();
-                                        $("#metrics1").show();
-
-                                        var max_degree=result.max_degree;
-                                        var node_betweenness=result.node_betweenness;
-                                        var edge_betweenness=result.edge_betweenness;
-                                        var layout=result.layout_metrics;
-                                        var data=result.data_metrics;
+				if (repo_exists==true) {
+					$("#title").html($("#repo").val());
+				}
+				else {
+					$("#graph1").hide();
+					$("#slides").show();
+					$("#slides").html('<img src="static/error.svg"/>');
+				};
 
 
-                                        var content="<div class='Metrics'><h2>Metrics</h2>"
-                                        content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
-                                        for (i in max_degree) {content=content+'<br>'+max_degree[i]}
-                                        content=content+"<br><br><h3>Centrality: </h3>"
-                                        for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
-                                        content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
-                                        for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
-                                        content=content+"</div><div id='graphMetrics1'></div></div>"
+				var content="<div class='Metrics'><h2>Metrics</h2>"
+				content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
+				for (i in max_degree) {content=content+'<br>'+max_degree[i]}
+				content=content+"<br><br><h3>Centrality: </h3>"
+				for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
+				content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
+				for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
+				content=content+"</div><div id='graphMetrics1'></div></div>"
 
-                                        $("#metrics1").html(content);
+				$("#metrics1").html(content);
 
-                                        Plotly.newPlot('graphMetrics1', data, layout);
+				Plotly.newPlot('graphMetrics1', data, layout);
 
-                                        $("#json").show();
+				$.ajax({
+					url: "http://localhost:5000/getComm?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+					success: function(result){
+						console.log('success');
 
-                                    },
-                                    error: function(error,status){
-                                        console.log('error');
-                                        console.log(status);
+						var layout=result.layout_3D;
+						var data=result.data_3D;
 
-                                        $("#graph1").hide();
-                                        $("#graph2").hide();
-                                        $("#slides").show();
-                                        $("#slides").html('<img src="static/error.svg"/>');
+						$("#graph1").hide();
+						$("#metrics1").hide();
+						$("#slides").hide();
+						$(".Explenations").hide();
+						$("#graph2").show();
 
-                                    },
-                                    complete: function(error,status){
-                                        console.log('complete');
-                                        console.log(status);
-                                    }
-                                });
-                            },
-                            error: function(error,status){
-                                console.log('error');
-                                console.log(status);
+						Plotly.newPlot('graph2', data, layout);
+						$("#comm").show();
+						$("#metrics2").show();
 
-                                $("#graph1").hide();
-                                $("#slides").show();
-                                $("#slides").html('<img src="static/error.svg"/>');
 
-                            },
-                            complete: function(error,status){
-                                console.log('complete');
-                                console.log(status);
-                            }
-                        });
-                    },
-                    error: function(error,status){
-                        console.log('error');
-                        console.log(status);
-                        $("#slides").html('<img src="static/error.svg"/>');
+						var max_degree=result.max_degree;
+						var node_betweenness=result.node_betweenness;
+						var edge_betweenness=result.edge_betweenness;
+						var layout=result.layout_metrics;
+						var data=result.data_metrics;
 
-                    },
-                    complete: function(error,status){
-                        console.log('complete');
-                        console.log(status);
-                    }
-                });
-            },
-            error: function(error,status){
-                console.log('error');
-                console.log(status);
-                $("#slides").html('<img src="static/error.svg"/>');
 
-            },
-            complete: function(error,status){
-                console.log('complete');
-                console.log(status);
-            }
-        });
-        
-        url="";
-        cemaphore=true;
+						var content="<div class='Metrics'><h2>Metrics</h2>"
+						content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
+						for (i in max_degree) {content=content+'<br>'+max_degree[i]}
+						content=content+"<br><br><h3>Centrality: </h3>"
+						for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
+						content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
+						for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
+						content=content+"</div><div id='graphMetrics2'></div></div>"
+
+						$("#metrics2").html(content);
+
+						if (layout.error) {
+							$("#metrics2").html("<h3>No metrics !</h3><br>Users didn't commented on issues...<br>");
+						}
+						else {
+							Plotly.newPlot('graphMetrics2', data, layout);
+						}
+					   
+
+						$("#json").show();
+					},
+					error: function(error,status){
+						console.log('error');
+						console.log(status);
+
+						$("#graph1").hide();
+						$("#slides").show();
+						$("#slides").html('<img src="static/error.svg"/>');
+
+					},
+					complete: function(error,status){
+						console.log('complete');
+						console.log(status);
+					}
+				});
+			},
+			error: function(error,status){
+				console.log('error');
+				console.log(status);
+				$("#slides").html('<img src="static/error.svg"/>');
+
+			},
+			complete: function(error,status){
+				console.log('complete');
+				console.log(status);
+			}
+		});
+		
+		url="";
+		cemaphore=true;
 };
 $(document).ready(function(){
-    $(document).keypress(function (e){
-        if (e.which == 13) {
-            runScript();
-        }
-    });
-    $("#submit").click(function(){
-        runScript();
-    });
-    $("#cont").click(function(){
-    	$("#slides").hide();
-    	$("#graph2").hide();
-    	$("#metrics2").hide();
-    	$("#graph1").show();
-    	$("#metrics1").show();
-    });
-    $("#comm").click(function(){
-    	$("#slides").hide();
-    	$("#graph1").hide();
-    	$("#metrics1").hide();
-    	$("#graph2").show();
-    	$("#metrics2").show();
-    });
+	$(document).keypress(function (e){
+		if (e.which == 13) {
+			runScript();
+		}
+	});
+	$("#submit").click(function(){
+		runScript();
+	});
+	$("#cont").click(function(){
+		$("#slides").hide();
+		$("#graph2").hide();
+		$("#metrics2").hide();
+		$("#graph1").show();
+		$("#metrics1").show();
+	});
+	$("#comm").click(function(){
+		$("#slides").hide();
+		$("#graph1").hide();
+		$("#metrics1").hide();
+		$("#graph2").show();
+		$("#metrics2").show();
+	});
 });
 </script>
 </head>
 <body>
 <h1><a href="index.html">GraphGithub</a></h1>
 <div id=form>
-    <input id="user" type="text" name="user" value="AlexFabre" required>
-    <input id="pass" type="password" name="pass" value="Srp043k1" required>
-    <input id="org" type="text" name="org" value="twbs" required>
-    <input id="repo" type="text" name="repo" value="grunt-bootlint" required>
-    <button id="submit">Go</button>
+	<input id="user" type="text" name="user" value="AlexFabre" required>
+	<input id="pass" type="password" name="pass" value="Srp043k1" required>
+	<input id="org" type="text" name="org" value="twbs" required>
+	<input id="repo" type="text" name="repo" value="grunt-bootlint" required>
+	<button id="submit">Go</button>
 </div>
 <div id=message>Github API limits annonimous requests. Connect with your Github logins to disable limitation.</div>
 <div id="prompt">
@@ -220,10 +208,10 @@ $(document).ready(function(){
 </div>
 <div id="container">
 	<div id="slides"><img src="static/dessin.svg"/></div>
-    <div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.<img src="static/ex_contribution.png"></div></div>
-    <div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.<img src="static/ex_comment.png"></div></div>
-    <div id="metrics1"><div class="Explenations"><h2>About metrics1</h2></div></div>
-    <div id="metrics2"><div class="Explenations"><h2>About metrics2</h2></div></div>
+	<div id="graph1"><div class="Explenations"><h2>About contribution</h2><br>Contribution are measured regarding each commit of every file. We use PyGithub3 API and native command line Github API.<img src="static/ex_contribution.png"></div></div>
+	<div id="graph2"><div class="Explenations"><h2>About comments</h2><br>Comments are extracted regarding each participant of every issue ('open' for the moment, 'close' issues might follow). We use PyGithub3 API.<img src="static/ex_comment.png"></div></div>
+	<div id="metrics1"><div class="Explenations"><h2>About metrics1</h2></div></div>
+	<div id="metrics2"><div class="Explenations"><h2>About metrics2</h2></div></div>
 </div>
 </body>
 </html>

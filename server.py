@@ -11,46 +11,39 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-
-@app.route("/log",methods=['GET', 'POST'])
-def login():
+@app.route("/getCont",methods=['GET', 'POST'])
+def getContribution():
 	
 	user = request.values.get('user')
 	p = request.values.get('pass')
 	org = request.values.get('org')
 	repo = request.values.get('repo')
 	
-	logged,message,foundRepo = gph.Prepare(user,p,org,repo)
+	rep=gph.prepare(user,p,org,repo)
 
-	rep = {'login_succeded':logged,'message':message,'repo_exists':foundRepo}
+	if rep['repo_exists']==False: # In case the repository wasn't found
+		req={'login_succeded':rep['login_succeded'],'message':rep['message'],'repo_exists':rep['repo_exists']}
+		return Response(json.dumps(req), mimetype='text/json')
 
-	return Response(json.dumps(rep), mimetype='text/json')
+	req=gph.getContribution(rep['user'],rep['repo'])
+	req['login_succeded']=rep['login_succeded']
+	req['message']=rep['message']
+	req['repo_exists']=rep['repo_exists']
 
-@app.route("/getCont")
-def getContribution():
-	
-	layout1, data1=gph.graphContribution()
+	return Response(json.dumps(req), mimetype='text/json')
 
-	rep={'layout':layout1,'data':data1}
-
-	return Response(json.dumps(rep), mimetype='text/json')
-
-@app.route("/getComm")
+@app.route("/getComm",methods=['GET', 'POST'])
 def getComments():
 	
-	layout2, data2=gph.graphComments()
-
-	rep={'layout':layout2,'data':data2}
-
-	return Response(json.dumps(rep), mimetype='text/json')
-
-@app.route("/getAll")
-def getAllRepo():
-
+	user = request.values.get('user')
+	p = request.values.get('pass')
+	org = request.values.get('org')
+	repo = request.values.get('repo')
 	
-	rep=gph.graphMetrics()
-	
-	return Response(json.dumps(rep), mimetype='text/json')
+	rep=gph.prepare(user,p,org,repo)
+	req=gph.getComments(rep['user'],rep['repo'])
+
+	return Response(json.dumps(req), mimetype='text/json')
 
 if __name__ == "__main__":
 	app.run()
