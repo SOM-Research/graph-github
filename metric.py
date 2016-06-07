@@ -5,13 +5,18 @@ import json, urllib2, sys, math
 import plotly as py
 from plotly.graph_objs import *
 
+from random import randint
+
 
 def layoutMetrics(Graph,Edges,title,metrics):
 
 	layout = Graph.layout("kk") #Graph layout
 
 	community = Graph.community_multilevel()
-	color_list = ['#6699ff','#ff5050','#00e6ac','#ffb3ff','#4dffdb','#ff9966','#8585ad','#ffe066','#ccff99','#bf4040']
+	color_list=[]
+	for i in range(0,max(community.membership)+1):
+		color_list.append('%06X' % randint(0x7F7F7F, 0xE5E5E5))
+
 	color_cluster = [color_list[x] for x in community.membership]
 	#-----------------------------------------------
 	# To see the igraph as png
