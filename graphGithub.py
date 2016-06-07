@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import getpass, sys
-from datetime import datetime
-import json, urllib2, time
+from datetime import datetime, timedelta
+import json, urllib2
 from pygithub3 import Github
 import metric as m 
 
@@ -101,47 +101,47 @@ def contribution(repo):
 
 	num=0
 	# Here we have to make a unique number for each participant
-
-	today=time.strftime("%d/%m/%Y")
-
+	today=datetime.now()
+	
 	jsonfile = open(repo.fileName, "wb+")
+	print "*new file created"
 
 	print "[writing json contribution]",
-	json=''
-	json=json+ '{"date":"'+today+'","organisation":"'+repo.org+'","repository":"'+repo.name+'","directory":"'+repo.directory+'","files":[';
+	text=''
+	text=text+ '{"date":"'+today.strftime("%Y-%m-%d")+'","organisation":"'+repo.org+'","repository":"'+repo.name+'","directory":"'+repo.directory+'","files":[';
 	cemaphore=True
 	for file in repo.file_list:
 		if cemaphore:
-			json=json+'{"name":"'+repo.file_list[file]['name']+'","type":"'+repo.file_list[file]['type']+'","size":"'+str(repo.file_list[file]['size'])+'","commits":"'+str(repo.file_list[file]['commits'])+'","author":"'+str(repo.file_list[file]['author'])+'","commiters":['
+			text=text+'{"name":"'+repo.file_list[file]['name']+'","type":"'+repo.file_list[file]['type']+'","size":"'+str(repo.file_list[file]['size'])+'","commits":"'+str(repo.file_list[file]['commits'])+'","author":"'+str(repo.file_list[file]['author'])+'","commiters":['
 			cemaphore=False
 		else:
-			json=json+',{"name":"'+repo.file_list[file]['name']+'","type":"'+repo.file_list[file]['type']+'","size":"'+str(repo.file_list[file]['size'])+'","commits":"'+str(repo.file_list[file]['commits'])+'","author":"'+str(repo.file_list[file]['author'])+'","commiters":['
+			text=text+',{"name":"'+repo.file_list[file]['name']+'","type":"'+repo.file_list[file]['type']+'","size":"'+str(repo.file_list[file]['size'])+'","commits":"'+str(repo.file_list[file]['commits'])+'","author":"'+str(repo.file_list[file]['author'])+'","commiters":['
 
 		cemaphore=True
 		for contributor in repo.file_list[file]['committers']:
 			if cemaphore:
-				json=json+'{"login":"'+str(repo.contributers_list[contributor]['login'])+'","num":"'+str(repo.contributers_list[contributor]['num'])+'","url":"'+str(repo.contributers_list[contributor]['url'])+'","id":'+str(repo.contributers_list[contributor]['id'])+',"total-commits":'+str(repo.contributers_list[contributor]['commits'])+',"file-commits":'+str(repo.file_list[file]['committers'][contributor])+',"commiters-info":['
+				text=text+'{"login":"'+str(repo.contributers_list[contributor]['login'])+'","num":"'+str(repo.contributers_list[contributor]['num'])+'","url":"'+str(repo.contributers_list[contributor]['url'])+'","id":'+str(repo.contributers_list[contributor]['id'])+',"total-commits":'+str(repo.contributers_list[contributor]['commits'])+',"file-commits":'+str(repo.file_list[file]['committers'][contributor])+',"commiters-info":['
 				cemaphore=False
 			else:
-				json=json+',{"login":"'+str(repo.contributers_list[contributor]['login'])+'","num":"'+str(repo.contributers_list[contributor]['num'])+'","url":"'+str(repo.contributers_list[contributor]['url'])+'","id":'+str(repo.contributers_list[contributor]['id'])+',"total-commits":'+str(repo.contributers_list[contributor]['commits'])+',"file-commits":'+str(repo.file_list[file]['committers'][contributor])+',"commiter-info":['
+				text=text+',{"login":"'+str(repo.contributers_list[contributor]['login'])+'","num":"'+str(repo.contributers_list[contributor]['num'])+'","url":"'+str(repo.contributers_list[contributor]['url'])+'","id":'+str(repo.contributers_list[contributor]['id'])+',"total-commits":'+str(repo.contributers_list[contributor]['commits'])+',"file-commits":'+str(repo.file_list[file]['committers'][contributor])+',"commiter-info":['
 			num+=1
 
 			cemaphore=True
 			for committer in repo.contributers_list[contributor]['committers']:
 				if cemaphore:
-					json=json+'{"name":"'+str(repo.contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(repo.contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(repo.contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(repo.contributers_list[contributor]['committers'][committer]['date'])+'"}'
+					text=text+'{"name":"'+str(repo.contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(repo.contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(repo.contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(repo.contributers_list[contributor]['committers'][committer]['date'])+'"}'
 					cemaphore=False
 					
 				else:
-					json=json+',{"name":"'+str(repo.contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(repo.contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(repo.contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(repo.contributers_list[contributor]['committers'][committer]['date'])+'"}'
-			json=json+']}'
-		json=json+']}'
+					text=text+',{"name":"'+str(repo.contributers_list[contributor]['committers'][committer]['name'])+'","email":"'+str(repo.contributers_list[contributor]['committers'][committer]['email'])+'","sha":"'+str(repo.contributers_list[contributor]['committers'][committer]['sha'])+'","date":"'+str(repo.contributers_list[contributor]['committers'][committer]['date'])+'"}'
+			text=text+']}'
+		text=text+']}'
 
-	jsonfile.write(json)
+	jsonfile.write(text)
 	jsonfile.close()
 
 	print '\033[92m'+" ok"+'\033[0m'
-	return m.contribution(json+']}')
+	return m.contribution(text+']}')
 #--------------------
 # Completting json file with issues and commenters
 def comments(repo):
@@ -152,32 +152,32 @@ def comments(repo):
 
 	print "[writing json issues]",
 	jsonfile.write("],")
-	json='"issues":['
+	text='"issues":['
 	cemaphore=True
 	for issue in repo.issue_list:
 		if cemaphore:
-			json=json+'{"number":'+str(repo.issue_list[issue]['number'])+',"state":"'+repo.issue_list[issue]['state']+'","author":"'+str(repo.issue_list[issue]['author'])+'","comments":'+str(repo.issue_list[issue]['comments'])+',"commenters":['
+			text=text+'{"number":'+str(repo.issue_list[issue]['number'])+',"state":"'+repo.issue_list[issue]['state']+'","author":"'+str(repo.issue_list[issue]['author'])+'","comments":'+str(repo.issue_list[issue]['comments'])+',"commenters":['
 			cemaphore=False
 		else:
-			json=json+',{"number":'+str(repo.issue_list[issue]['number'])+',"state":"'+repo.issue_list[issue]['state']+'","author":"'+str(repo.issue_list[issue]['author'])+'","comments":'+str(repo.issue_list[issue]['comments'])+',"commenters":['
+			text=text+',{"number":'+str(repo.issue_list[issue]['number'])+',"state":"'+repo.issue_list[issue]['state']+'","author":"'+str(repo.issue_list[issue]['author'])+'","comments":'+str(repo.issue_list[issue]['comments'])+',"commenters":['
 
 		cemaphore=True
 		for commenter in repo.issue_list[issue]['commenters']:
 			if cemaphore:
-				json=json+'{"login":"'+str(repo.user_list[commenter]['login'])+'","id":'+str(repo.user_list[commenter]['id'])+',"comments":'+str(repo.issue_list[issue]['commenters'][commenter])+',"total-comments":'+str(repo.user_list[commenter]['comments'])+'}'
+				text=text+'{"login":"'+str(repo.user_list[commenter]['login'])+'","id":'+str(repo.user_list[commenter]['id'])+',"comments":'+str(repo.issue_list[issue]['commenters'][commenter])+',"total-comments":'+str(repo.user_list[commenter]['comments'])+'}'
 				cemaphore=False
 			else:
-				json=json+',{"login":"'+str(repo.user_list[commenter]['login'])+'","id":'+str(repo.user_list[commenter]['id'])+',"comments":'+str(repo.issue_list[issue]['commenters'][commenter])+',"total-comments":'+str(repo.user_list[commenter]['comments'])+'}'
-		json=json+']}'
+				text=text+',{"login":"'+str(repo.user_list[commenter]['login'])+'","id":'+str(repo.user_list[commenter]['id'])+',"comments":'+str(repo.issue_list[issue]['commenters'][commenter])+',"total-comments":'+str(repo.user_list[commenter]['comments'])+'}'
+		text=text+']}'
 
-	json=json+']}'
+	text=text+']}'
 	
 	print '\033[92m'+" ok"+'\033[0m'
 
-	jsonfile.write(json)
+	jsonfile.write(text)
 	jsonfile.close()
 
-	return m.comments('{"organisation":"'+repo.org+'","repository":"'+repo.name+'","directory":"'+repo.directory+'",'+json)
+	return m.comments('{"organisation":"'+repo.org+'","repository":"'+repo.name+'","directory":"'+repo.directory+'",'+text)
 #----------------------------------------------------------------------
 
 
@@ -187,6 +187,7 @@ class Repository:
 	
 	def __init__(self,org,repo):
 		print "[*]Creating Repository object..."
+		self.json_exists=False # Cemaphore to check if we allready have mined this repository within two days
 		self.content={}
 		# for contribution:
 		self.contributers_list={}
@@ -262,18 +263,36 @@ class User:
 # Create user and repo objects
 def prepare(login,p,org,repo_name):
 	print "----Preparing datas----"
+
 	user = User(login,p)  # Create object user
 	user_logged, message = user.getStatus()# Check wether user is logged or Annonimous
 
 	repo = Repository(org,repo_name) # Create object Repository
-	repo_exists=True # Check repository exists on Github
+
+	yesterday=datetime.now()-timedelta(days=2)
+	try:
+		jsonfile = open(repo.fileName)
+		temp=json.loads(jsonfile.read())
+		print "[*]json file exists on server",
+		file_date=datetime.strptime(temp['date'], "%Y-%m-%d")
+		if file_date>=yesterday and temp.has_key('files') and temp.has_key('issues'):
+			print "and the file is recent"
+			repo.json_exists=True
+			jsonfile.close()
+		else:
+			print 'but file is too old'
+	except Exception, e:
+		print e
+
+	repo_exists=True
 	if repo.getContent(user)==False:
 		error="Error: Unable to find repository ! "
 		print error
 		message=message+' '+error
 		repo_exists=False
 
-	return {'user':user,'repo':repo,'login_succeded':user_logged,'message':message,'repo_exists':repo_exists}
+	return {'user':user,'repo':repo,'message':message,'login_succeded':user.logged,'repo_exists':repo_exists,'jsonfile_exists':repo.json_exists,'jsonfile_name':repo.fileName}
+
 # Use Github API to get all the commits
 def getContribution(user,repo):
 	print "----Mining Repository (contribution)----"

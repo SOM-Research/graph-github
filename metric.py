@@ -11,7 +11,7 @@ def layoutMetrics(Graph,Edges,title,metrics):
 	layout = Graph.layout("kk") #Graph layout
 
 	community = Graph.community_multilevel()
-	color_list = ['#ff5050','#6699ff','#00e6ac','#ffb3ff','#4dffdb','#ff9966','#8585ad','#ffe066','#ccff99','#bf4040']
+	color_list = ['#6699ff','#ff5050','#00e6ac','#ffb3ff','#4dffdb','#ff9966','#8585ad','#ffe066','#ccff99','#bf4040']
 	color_cluster = [color_list[x] for x in community.membership]
 	#-----------------------------------------------
 	# To see the igraph as png
@@ -280,7 +280,7 @@ def contribution(file):
 				   z=Ze,
 				   mode='lines',
 				   name='Links',
-				   line=Line(color='#D3D3F9', width='1'),
+				   line=Line(color='#D3D3F9', width='0.7'),
 				   text=labels_links,
 				   hoverinfo='text'
 				   )
@@ -538,7 +538,7 @@ def comments(file):
 				   z=Ze,
 				   mode='lines',
 				   name='Links',
-				   line=Line(color='#D3D3F9', width='1'),
+				   line=Line(color='#D3D3F9', width='0.7'),
 				   text=labels_links,
 				   hoverinfo='text'
 				   )

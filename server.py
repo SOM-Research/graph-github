@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, Response, render_template, url_for
 import graphGithub as gph
+import metric as m
 import simplejson as json
 
 app = Flask(__name__)
@@ -24,12 +25,16 @@ def getContribution():
 	if rep['repo_exists']==False: # In case the repository wasn't found
 		req={'login_succeded':rep['login_succeded'],'message':rep['message'],'repo_exists':rep['repo_exists']}
 		return Response(json.dumps(req), mimetype='text/json')
-
-	req=gph.getContribution(rep['user'],rep['repo'])
+	
+	if rep['jsonfile_exists']==True: # No need to mine the repository
+		file=open(rep['jsonfile_name'])
+		req=m.contribution(file.read())
+	else:
+		req=gph.getContribution(rep['user'],rep['repo'])
+	
 	req['login_succeded']=rep['login_succeded']
 	req['message']=rep['message']
 	req['repo_exists']=rep['repo_exists']
-
 	return Response(json.dumps(req), mimetype='text/json')
 
 @app.route("/getComm",methods=['GET', 'POST'])
@@ -41,8 +46,20 @@ def getComments():
 	repo = request.values.get('repo')
 	
 	rep=gph.prepare(user,p,org,repo)
-	req=gph.getComments(rep['user'],rep['repo'])
 
+	if rep['repo_exists']==False: # In case the repository wasn't found
+		req={'login_succeded':rep['login_succeded'],'message':rep['message'],'repo_exists':rep['repo_exists']}
+		return Response(json.dumps(req), mimetype='text/json')
+	
+	if rep['jsonfile_exists']==True: # No need to mine the repository
+		file=open(rep['jsonfile_name'])
+		req=m.comments(file.read())
+	else:
+		req=gph.getComments(rep['user'],rep['repo'])
+
+	req['login_succeded']=rep['login_succeded']
+	req['message']=rep['message']
+	req['repo_exists']=rep['repo_exists']
 	return Response(json.dumps(req), mimetype='text/json')
 
 if __name__ == "__main__":
