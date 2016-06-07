@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, Response, render_template, url_for
 import graphGithub as gph
+import metric as m
 import simplejson as json
 
 app = Flask(__name__)
@@ -11,45 +12,55 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-
-@app.route("/log",methods=['GET', 'POST'])
-def login():
-    user = request.values.get('user')
-    p = request.values.get('pass')
-    org = request.values.get('org')
-    repo = request.values.get('repo')
-
-    logged, message, foundRepo = gph.Prepare(user, p, org, repo)
-
-    rep = {'login_succeded': logged, 'message': message, 'repo_exists': foundRepo}
-
-    return Response(json.dumps(rep), mimetype='text/json')
-
-
-@app.route("/getCont")
+@app.route("/getCont",methods=['GET', 'POST'])
 def getContribution():
-    layout1, data1 = gph.graphContribution()
+	
+	user = request.values.get('user')
+	p = request.values.get('pass')
+	org = request.values.get('org')
+	repo = request.values.get('repo')
+	
+	rep=gph.prepare(user,p,org,repo)
 
-    rep = {'layout': layout1, 'data': data1}
+	if rep['repo_exists']==False: # In case the repository wasn't found
+		req={'login_succeded':rep['login_succeded'],'message':rep['message'],'repo_exists':rep['repo_exists']}
+		return Response(json.dumps(req), mimetype='text/json')
+	
+	if rep['jsonfile_exists']==True: # No need to mine the repository
+		file=open(rep['jsonfile_name'])
+		req=m.contribution(file.read())
+	else:
+		req=gph.getContribution(rep['user'],rep['repo'])
+	
+	req['login_succeded']=rep['login_succeded']
+	req['message']=rep['message']
+	req['repo_exists']=rep['repo_exists']
+	return Response(json.dumps(req), mimetype='text/json')
 
-    return Response(json.dumps(rep), mimetype='text/json')
-
-
-@app.route("/getComm")
+@app.route("/getComm",methods=['GET', 'POST'])
 def getComments():
-    layout2, data2 = gph.graphComments()
+	
+	user = request.values.get('user')
+	p = request.values.get('pass')
+	org = request.values.get('org')
+	repo = request.values.get('repo')
+	
+	rep=gph.prepare(user,p,org,repo)
 
-    rep = {'layout': layout2, 'data': data2}
+	if rep['repo_exists']==False: # In case the repository wasn't found
+		req={'login_succeded':rep['login_succeded'],'message':rep['message'],'repo_exists':rep['repo_exists']}
+		return Response(json.dumps(req), mimetype='text/json')
+	
+	if rep['jsonfile_exists']==True: # No need to mine the repository
+		file=open(rep['jsonfile_name'])
+		req=m.comments(file.read())
+	else:
+		req=gph.getComments(rep['user'],rep['repo'])
 
-    return Response(json.dumps(rep), mimetype='text/json')
-
-
-@app.route("/getAll")
-def getAllRepo():
-    rep = gph.graphMetrics()
-
-    return Response(json.dumps(rep), mimetype='text/json')
-
+	req['login_succeded']=rep['login_succeded']
+	req['message']=rep['message']
+	req['repo_exists']=rep['repo_exists']
+	return Response(json.dumps(req), mimetype='text/json')
 
 if __name__ == "__main__":
 	app.run()

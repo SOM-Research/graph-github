@@ -28,6 +28,11 @@ pip install simplejson
 pip install flask
 ```
 
+```
+pip install cairocffi
+
+```
+
 
 Then you just have to run the python script with some few arguments (what repository you want to work on) So juste type:
 

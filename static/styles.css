@@ -172,14 +172,22 @@ img
     display: none;
     width: 100%;
     background-color: white;
+    padding-bottom: 50px;
 }
 #metrics2
 {
     display: none;
     width: 100%;
     background-color: white;
+    padding-bottom: 50px;
 }
 #graphMetrics1
+{
+    float: left;
+    width: 65%;
+    height: 100%;
+}
+#graphMetrics2
 {
     float: left;
     width: 65%;
