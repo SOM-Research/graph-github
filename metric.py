@@ -5,6 +5,169 @@ import json, urllib2, sys, math
 import plotly as py
 from plotly.graph_objs import *
 
+
+def layoutMetrics(Graph,Edges,title,metrics):
+
+	layout = Graph.layout("kk") #Graph layout
+
+	community = Graph.community_multilevel()
+	color_list = ['#ff5050','#6699ff','#00e6ac','#ffb3ff','#4dffdb','#ff9966','#8585ad','#ffe066','#ccff99','#bf4040']
+	color_cluster = [color_list[x] for x in community.membership]
+	#-----------------------------------------------
+	# To see the igraph as png
+	# Juste write if True: to display it ;)
+	if False:
+
+		wi=1000
+		visual_style = {}
+		visual_style["vertex_size"] = 20
+		visual_style["vertex_color"]=color_cluster
+		visual_style["vertex_label"] = Graph.vs["name"]
+		visual_style["layout"] = "kk"
+		visual_style["bbox"] = (wi, wi)
+		visual_style["margin"] = (wi/10)
+
+		ig.plot(Graph, **visual_style)
+	#-----------------------------------------------
+
+	layout = Graph.layout("kk", dim=3) #Graph layout
+
+	#-----------------------------------------------
+	print "[info]",
+	# The metrics calculation
+
+	# Degree of Authorship (DOA) = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
+	# first authorship (FA), number of deliveries (DL), number of acceptances (AC)
+
+	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
+	
+	if len(metrics['max_degree'])==len(Graph.vs['name']):
+		metrics['max_degree']=['No maximum !','They all have same value']
+	
+	metrics['node_betweenness']=Graph.vs.select(_betweenness = max(Graph.betweenness()))['name']
+	
+	if len(metrics['node_betweenness'])==len(Graph.vs['name']):
+		metrics['node_betweenness']=['No maximum !','They all have same value']
+	
+	ebs = Graph.edge_betweenness()
+	max_eb = max(ebs)
+	edge_list=[]
+	labels_links=[]
+	for idx, eb in enumerate(ebs):
+		labels_links.append(Graph.vs['name'][Graph.es[idx].source]+' & '+Graph.vs['name'][Graph.es[idx].target])
+		labels_links.append(Graph.vs['name'][Graph.es[idx].source]+' & '+Graph.vs['name'][Graph.es[idx].target])
+		labels_links.append(Graph.vs['name'][Graph.es[idx].source]+' & '+Graph.vs['name'][Graph.es[idx].target])
+		if eb == max_eb:
+			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name']))
+	metrics['edge_betweenness']=edge_list
+	
+	if len(metrics['edge_betweenness'])==len(ebs):
+		metrics['edge_betweenness']=['No maximum !','They all have same value']
+	#-----------------------------------------------
+
+	print '\033[92m'+" ok"+'\033[0m'
+	print "[position]",
+
+	#-----------------------------------------------
+	# Plotly layout
+	labels=list(Graph.vs['name'])
+	N=len(labels)
+	E=[e.tuple for e in Graph.es]
+	layt=layout
+
+	print '\033[92m'+" ok"+'\033[0m'
+	print "[position]",
+
+	Xnu=[layt[k][0] for k in range(N)]# x-coordinates of nodes
+	Ynu=[layt[k][1] for k in range(N)]# y-coordinates
+	Znu=[layt[k][2] for k in range(N)]# z-coordinates
+
+
+	Xe=[]
+	Ye=[]
+	Ze=[]
+	for e in Edges:
+		Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
+		Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
+		Ze+=[layt[e[0]][2],layt[e[1]][2], None]
+
+
+	print '\033[92m'+" ok"+'\033[0m'
+
+	print "[draw]"+'\033[95m'
+	print '    links', len(Xe)/3
+
+	trace1=Scatter3d(x=Xe,
+				   y=Ye,
+				   z=Ze,
+				   mode='lines',
+				   name='Links',
+				   line=Line(color='#9efbdd', width='1'),
+				   text=labels_links,
+				   hoverinfo='text'
+				   )
+	
+	print '    users', len(Xnu),'\033[0m'
+
+	trace2=Scatter3d(x=Xnu,
+				   y=Ynu,
+				   z=Znu,  
+				   mode='markers',
+				   name='Users '+str(N),
+				   marker=Marker(symbol='dot',
+								 size='7', 
+								 color=color_cluster, 
+								 colorscale='Viridis',
+								 line=Line(color='rgb(50,50,50)', width=0)
+								 ),
+				   text=Graph.vs['name'],
+				   hoverinfo='text'
+				   )
+
+	axis=dict(showbackground=False,
+			  showline=False,  
+			  zeroline=False,
+			  showgrid=False,
+			  showticklabels=False,
+			  title='' 
+			  )
+
+	layout = Layout(
+			 title=title, 
+			 showlegend=True,
+			 scene=Scene(  
+				 xaxis=XAxis(axis,showspikes=False),
+				 yaxis=YAxis(axis,showspikes=False), 
+				 zaxis=ZAxis(axis,showspikes=False), 
+			),
+		 margin=Margin(
+			t=100
+		),
+		hovermode='closest',
+		annotations=Annotations([
+			   Annotation(
+			   showarrow=False, 
+				text='',
+				xref='paper',     
+				yref='paper',     
+				x=0,  
+				y=0.1,  
+				xanchor='left',   
+				yanchor='bottom',  
+				font=Font(
+				size=14 
+				)     
+				)
+			]),    )
+
+	datas=Data([trace1, trace2])
+
+	metrics['layout_metrics']=layout
+	metrics['data_metrics']=datas
+
+	return metrics
+
+
 def contribution(file):
 
 	data = []
@@ -81,6 +244,7 @@ def contribution(file):
 		graph_legend="<a href='https://github.com/"+org+'/'+repo+"/'>Repository</a>"
 
 	N=nu
+	nu=nu-nf
 	E=[e.tuple for e in Graph.es]
 	layt=layout
 
@@ -92,9 +256,9 @@ def contribution(file):
 	Znf=[layt[k][2] for k in range(nf)]# z-coordinates
 
 
-	Xnu=[layt[nf+k][0] for k in range(nu-nf)]# x-coordinates of nodes
-	Ynu=[layt[nf+k][1] for k in range(nu-nf)]# y-coordinates
-	Znu=[layt[nf+k][2] for k in range(nu-nf)]# z-coordinates
+	Xnu=[layt[nf+k][0] for k in range(nu)]# x-coordinates of nodes
+	Ynu=[layt[nf+k][1] for k in range(nu)]# y-coordinates
+	Znu=[layt[nf+k][2] for k in range(nu)]# z-coordinates
 
 
 	Xe=[]
@@ -208,14 +372,6 @@ def contribution(file):
 
 
 
-
-
-
-
-
-
-
-
 	#-----------------------------------------------
 	# Getting the nodes of the 2D graph (Who knows who)
 	print '----Creating metrics graph of users connexion:----'
@@ -259,185 +415,27 @@ def contribution(file):
 	#-----------------------------------------------
 
 
-
 	Graph=ig.Graph(table, directed=False) # Create the graph object
 
 	Graph.vs["name"] = name_list #To associate name to nodes
+	title="Network of contributers<br>(they worked same file and have more than 1 commit):"
 
-	layout = Graph.layout("kk") #Graph layout
+	metrics = layoutMetrics(Graph,table,title,metrics)
 	
-
-
-	#-----------------------------------------------
-	# To see the igraph as png
-	# Juste write if True: to display it ;)
-	if False:
-
-		wi=1000
-		visual_style = {}
-		visual_style["vertex_size"] = 20
-		visual_style["vertex_label"] = Graph.vs["name"]
-		visual_style["layout"] = "kk"
-		visual_style["bbox"] = (wi, wi)
-		visual_style["margin"] = (wi/10)
-
-		ig.plot(Graph, **visual_style)
-	#-----------------------------------------------
-
-	layout = Graph.layout("kk", dim=3) #Graph layout
-
-	#-----------------------------------------------
-	print "[info]",
-	# The metrics calculation
-
-	# Degree of Authorship (DOA) = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
-	# first authorship (FA), number of deliveries (DL), number of acceptances (AC)
-
-	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
-	
-	if len(metrics['max_degree'])==len(Graph.vs['name']):
-		metrics['max_degree']=['No maximum !','They all have same value']
-	
-	metrics['node_betweenness']=Graph.vs.select(_betweenness = max(Graph.betweenness()))['name']
-	
-	if len(metrics['node_betweenness'])==len(Graph.vs['name']):
-		metrics['node_betweenness']=['No maximum !','They all have same value']
-	
-	ebs = Graph.edge_betweenness()
-	max_eb = max(ebs)
-	edge_list=[]
-	labels_links=[]
-	for idx, eb in enumerate(ebs):
-		labels_links.append(str((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'])))
-		labels_links.append(str((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'])))
-		if eb == max_eb:
-			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name']))
-	metrics['edge_betweenness']=edge_list
-	
-	if len(metrics['edge_betweenness'])==len(ebs):
-		metrics['edge_betweenness']=['No maximum !','They all have same value']
-	#-----------------------------------------------
-
-	print '\033[92m'+" ok"+'\033[0m'
-	print "[position]",
-
-	#-----------------------------------------------
-	# Plotly layout
-	labels=list(Graph.vs['name'])
-	N=len(labels)
-	E=[e.tuple for e in Graph.es]
-	layt=layout
-
-	print '\033[92m'+" ok"+'\033[0m'
-	print "[position]",
-
-	Xnu=[layt[k][0] for k in range(N)]# x-coordinates of nodes
-	Ynu=[layt[k][1] for k in range(N)]# y-coordinates
-	Znu=[layt[k][2] for k in range(N)]# z-coordinates
-
-
-	Xe=[]
-	Ye=[]
-	Ze=[]
-	for e in Edges:
-		Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
-		Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
-		Ze+=[layt[e[0]][2],layt[e[1]][2], None]
-
-
-	print '\033[92m'+" ok"+'\033[0m'
-
-	print "[draw]"+'\033[95m'
-	print '    links', len(Xe)/3
-
-	trace1=Scatter3d(x=Xe,
-				   y=Ye,
-				   z=Ze,
-				   mode='lines',
-				   name='Links',
-				   line=Line(color='#9efbdd', width='1'),
-				   text=labels_links,
-				   hoverinfo='text'
-				   )
-	
-	print '    users', len(Xnu),'\033[0m'
-
-	trace2=Scatter3d(x=Xnu,
-				   y=Ynu,
-				   z=Znu,  
-				   mode='markers',
-				   name='Commenters '+str(nu),
-				   marker=Marker(symbol='dot',
-								 size=size_user, 
-								 color='#6A5ACD', 
-								 colorscale='Viridis',
-								 line=Line(color='rgb(50,50,50)', width=0)
-								 ),
-				   text=labels_user,
-				   hoverinfo='text'
-				   )
-
-	axis=dict(showbackground=False,
-			  showline=False,  
-			  zeroline=False,
-			  showgrid=False,
-			  showticklabels=False,
-			  title='' 
-			  )
-
-	layout = Layout(
-			 title="Network of contributers<br>(they worked same file and have more than 1 commit):", 
-			 showlegend=True,
-			 scene=Scene(  
-				 xaxis=XAxis(axis,showspikes=False),
-				 yaxis=YAxis(axis,showspikes=False), 
-				 zaxis=ZAxis(axis,showspikes=False), 
-			),
-		 margin=Margin(
-			t=100
-		),
-		hovermode='closest',
-		annotations=Annotations([
-			   Annotation(
-			   showarrow=False, 
-				text='',
-				xref='paper',     
-				yref='paper',     
-				x=0,  
-				y=0.1,  
-				xanchor='left',   
-				yanchor='bottom',  
-				font=Font(
-				size=14 
-				)     
-				)
-			]),    )
-
-	datas=Data([trace1, trace2])
-
-
-	metrics['layout_metrics']=layout
-	metrics['data_metrics']=datas
-	#-----------------------------------------------
 	print "[terminated]", '\033[0m'
-
 
 	# We return a dictionnary that contain the metrics and the two graphs (3d & 2d)
 	return metrics
 	
 
-
-
-
+	#-----------------------------------------------
 
 
 def comments(file):
 
 	data = []
 
-
 	data = json.loads(file)
-
 
 	#-----------------------------------------------
 	# Getting the nodes of the 3D graph (comments)
@@ -504,6 +502,7 @@ def comments(file):
 	graph_legend="<a href='https://github.com/"+org+'/'+repo+"/'>Repository</a>"
 
 	N=nu
+	nu=nu-nf
 	E=[e.tuple for e in Graph.es]
 	layt=layout
 
@@ -515,9 +514,9 @@ def comments(file):
 	Znf=[layt[k][2] for k in range(nf)]# z-coordinates
 
 
-	Xnu=[layt[nf+k][0] for k in range(nu-nf)]# x-coordinates of nodes
-	Ynu=[layt[nf+k][1] for k in range(nu-nf)]# y-coordinates
-	Znu=[layt[nf+k][2] for k in range(nu-nf)]# z-coordinates
+	Xnu=[layt[nf+k][0] for k in range(nu)]# x-coordinates of nodes
+	Ynu=[layt[nf+k][1] for k in range(nu)]# y-coordinates
+	Znu=[layt[nf+k][2] for k in range(nu)]# z-coordinates
 
 
 	Xe=[]
@@ -628,17 +627,6 @@ def comments(file):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 	#-----------------------------------------------
 	# Getting the nodes of the 2D graph (Who knows who)
 	print '----Creating metrics graph of users connexion:----'
@@ -697,168 +685,15 @@ def comments(file):
 
 
 	Graph.vs["name"] = name_list #To associate name to nodes
+	title="Network of comenters<br>(they commented on the same issue):"
 
-	layout = Graph.layout("kk") #Graph layout
-	
-	
+	metrics = layoutMetrics(Graph,table,title,metrics)
 
-
-	#-----------------------------------------------
-	# To see the igraph as png
-	# Juste write if True: to display it ;)
-	if False:
-
-		wi=1000
-		visual_style = {}
-		visual_style["vertex_size"] = 20
-		visual_style["vertex_label"] = Graph.vs["name"]
-		visual_style["layout"] = "kk"
-		visual_style["bbox"] = (wi, wi)
-		visual_style["margin"] = (wi/10)
-
-		ig.plot(Graph, **visual_style)
-	#-----------------------------------------------
-
-	layout = Graph.layout("kk", dim=3) #Graph layout
-
-
-	#-----------------------------------------------
-	print "[info]",
-	# The metrics calculation
-
-	# Degree of Authorship (DOA) = 3.293 + 1.098 ∗ FA + 0.164 ∗ DL − 0.321 ∗ ln(1 + AC )
-	# first authorship (FA), number of deliveries (DL), number of acceptances (AC)
-
-	metrics['max_degree']=Graph.vs.select(_degree = Graph.maxdegree())["name"]
-	
-	if len(metrics['max_degree'])==len(Graph.vs['name']):
-		metrics['max_degree']=['No maximum !','They all have same value']
-	
-	metrics['node_betweenness']=Graph.vs.select(_betweenness = max(Graph.betweenness()))['name']
-	
-	if len(metrics['node_betweenness'])==len(Graph.vs['name']):
-		metrics['node_betweenness']=['No maximum !','They all have same value']
-	
-	ebs = Graph.edge_betweenness()
-	max_eb = max(ebs)
-	edge_list=[]
-	labels_links=[]
-	for idx, eb in enumerate(ebs):
-		labels_links.append(str((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'])))
-		labels_links.append(str((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name'])))
-		if eb == max_eb:
-			edge_list.append((Graph.vs.select(Graph.es[idx].source)['name'],Graph.vs.select(Graph.es[idx].target)['name']))
-	metrics['edge_betweenness']=edge_list
-	
-	if len(metrics['edge_betweenness'])==len(ebs):
-		metrics['edge_betweenness']=['No maximum !','They all have same value']
-	#-----------------------------------------------
-
-	print '\033[92m'+" ok"+'\033[0m'
-	print "[position]",
-
-	#-----------------------------------------------
-	# Plotly layout
-	labels=list(Graph.vs['name'])
-	N=len(labels)
-	E=[e.tuple for e in Graph.es]
-	layt=layout
-
-	print '\033[92m'+" ok"+'\033[0m'
-	print "[position]",
-
-	Xnu=[layt[k][0] for k in range(N)]# x-coordinates of nodes
-	Ynu=[layt[k][1] for k in range(N)]# y-coordinates
-	Znu=[layt[k][2] for k in range(N)]# z-coordinates
-
-
-	Xe=[]
-	Ye=[]
-	Ze=[]
-	for e in Edges:
-		Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
-		Ye+=[layt[e[0]][1],layt[e[1]][1], None]  
-		Ze+=[layt[e[0]][2],layt[e[1]][2], None]
-
-
-	print '\033[92m'+" ok"+'\033[0m'
-
-	print "[draw]"+'\033[95m'
-	print '    links', len(Xe)/3
-
-	trace1=Scatter3d(x=Xe,
-				   y=Ye,
-				   z=Ze,
-				   mode='lines',
-				   name='Links',
-				   line=Line(color='#9efbdd', width='1'),
-				   text=labels_links,
-				   hoverinfo='text'
-				   )
-	
-	print '    users', len(Xnu),'\033[0m'
-
-	trace2=Scatter3d(x=Xnu,
-				   y=Ynu,
-				   z=Znu,  
-				   mode='markers',
-				   name='Commenters '+str(nu),
-				   marker=Marker(symbol='dot',
-								 size=size_user, 
-								 color='#6A5ACD', 
-								 colorscale='Viridis',
-								 line=Line(color='rgb(50,50,50)', width=0)
-								 ),
-				   text=labels_user,
-				   hoverinfo='text'
-				   )
-
-	axis=dict(showbackground=False,
-			  showline=False,  
-			  zeroline=False,
-			  showgrid=False,
-			  showticklabels=False,
-			  title='' 
-			  )
-
-	layout = Layout(
-			 title="Network of comenters<br>(they commented on the same issue):",
-			 showlegend=True,
-			 scene=Scene(  
-				 xaxis=XAxis(axis,showspikes=False),
-				 yaxis=YAxis(axis,showspikes=False), 
-				 zaxis=ZAxis(axis,showspikes=False), 
-			),
-		 margin=Margin(
-			t=100
-		),
-		hovermode='closest',
-		annotations=Annotations([
-			   Annotation(
-			   showarrow=False, 
-				text='',
-				xref='paper',     
-				yref='paper',     
-				x=0,  
-				y=0.1,  
-				xanchor='left',   
-				yanchor='bottom',  
-				font=Font(
-				size=14 
-				)     
-				)
-			]),    )
-
-	datas=Data([trace1, trace2])
-
-
-	metrics['layout_metrics']=layout
-	metrics['data_metrics']=datas
-	#-----------------------------------------------
 	print "[terminated]", '\033[0m'
 
 	# We return a dictionnary that contain the metrics and the two graphs (3d & 2d)
 	return metrics
+	#-----------------------------------------------
 
 
 if __name__ == "__main__":
@@ -877,5 +712,5 @@ if __name__ == "__main__":
 
 	fig=Figure(data=result['data_metrics'], layout=result['layout_metrics']) 
 
-	py.offline.plot(fig, filename=file+".3DMetrics.html")
+	py.offline.plot(fig, filename=file+".metrics.html")
 
