@@ -12,6 +12,8 @@ def layoutMetrics(Graph,Edges,title,metrics):
 
 	layout = Graph.layout("kk") #Graph layout
 
+	print Graph
+
 	community = Graph.community_multilevel()
 	color_list=[]
 	for i in range(0,max(community.membership)+1):
@@ -391,7 +393,7 @@ def contribution(file):
 		file_list={}
 		author=file['author']
 		for commiter in file['commiters']:
-			if commiter['total-commits']>1:
+			if commiter['total-commits']>0:
 				if commiter_list.has_key(commiter['login']):
 					pass
 				else:

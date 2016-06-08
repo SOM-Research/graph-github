@@ -205,7 +205,7 @@ class Repository:
 
 		if len(temp)>1:  # If there is a specified directory in the path ex: bootlint/src
 			self.directory=temp[1] # Where to make the graph
-			self.fileName=org+'-'+repo+'>'+directory+'.json'
+			self.fileName=org+'-'+repo+'>'+self.directory+'.json'
 		print '\033[92m'+"[Done]"+'\033[0m'
 
 	def getContent(self,user):
