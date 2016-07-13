@@ -12,29 +12,26 @@ def layoutMetrics(Graph,Edges,title,metrics):
 
 	layout = Graph.layout("kk") #Graph layout
 
-	print Graph
-
 	community = Graph.community_multilevel()
 	color_list=[]
 	for i in range(0,max(community.membership)+1):
 		color_list.append('%06X' % randint(0x7F7F7F, 0xE5E5E5))
 
-	color_cluster = [color_list[x] for x in community.membership]
+	color_cluster = ['#'+str(color_list[x]) for x in community.membership]
 	#-----------------------------------------------
 	# To see the igraph as png
 	# Juste write if True: to display it ;)
-	if False:
-
+	if True:
 		wi=1000
 		visual_style = {}
-		visual_style["vertex_size"] = 20
-		visual_style["vertex_color"]=color_cluster
+		visual_style["vertex_size"] = 40
+		visual_style["vertex_color"]= color_cluster
 		visual_style["vertex_label"] = Graph.vs["name"]
 		visual_style["layout"] = "kk"
 		visual_style["bbox"] = (wi, wi)
 		visual_style["margin"] = (wi/10)
 
-		ig.plot(Graph, **visual_style)
+		ig.plot(Graph,'graph.png', **visual_style)
 	#-----------------------------------------------
 
 	layout = Graph.layout("kk", dim=3) #Graph layout
@@ -175,7 +172,7 @@ def layoutMetrics(Graph,Edges,title,metrics):
 	return metrics
 
 
-def contribution(file):
+def draw_contribution(file):
 
 	data = []
 
@@ -438,7 +435,7 @@ def contribution(file):
 	#-----------------------------------------------
 
 
-def comments(file):
+def draw_comments(file):
 
 	data = []
 
@@ -713,11 +710,11 @@ if __name__ == "__main__":
 
 	f = open(file, "rb")
 
-	result = comments(f.read()) # Creating graph object
+	result = contribution(f.read()) # Creating graph object
 
 	#----------Displaying the graph---------
 
-	fig=Figure(data=result['data_metrics'], layout=result['layout_metrics']) 
+	fig=Figure(data=result['data_3D'], layout=result['layout_3D']) 
 
-	py.offline.plot(fig, filename=file+".metrics.html")
+	py.offline.plot(fig, filename=file+".3D.html")
 

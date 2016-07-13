@@ -7,10 +7,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 <script>
 function runScript(){
-		if (cemaphore=false) {
-			alert("Server is busy, wait for the end of you request first")
-			return false;
-		}
 		if ($("#user").val()!='' && $("#pass").val()=='') {
 			alert("Identification is missing. To procede annonimously leave both 'user' and 'password' inputs blank");
 			return false;
@@ -23,10 +19,6 @@ function runScript(){
 			alert('Repository is missing');
 			return false;
 		}
-
-
-		cemaphore=false;
-
 
 		$("#message").html('Authentication...');
 		$("#json").hide();
@@ -41,73 +33,41 @@ function runScript(){
 		$("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
 
 		$.ajax({
-			url: "http://localhost:5000/getCont?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+			url: "http://localhost:5000/log?org="+$("#org").val()+"&repo="+$("#repo").val(), 
 			success: function(result){
 				console.log('success');
 
-				var login_succeded=result.login_succeded;
+				var user_logged=result.user_logged;
 				var repo_exists=result.repo_exists;
-				var message=result.message;
-				$("#message").html(message);
-
-				var layout=result.layout_3D;
-				var data=result.data_3D;
-
-				$("#slides").hide();
-				$(".Explenations").hide();
-				$("#graph1").show();
-
-				Plotly.newPlot('graph1', data, layout);
-				$("#cont").show();
-				$("#metrics1").show();
-
-				var max_degree=result.max_degree;
-				var node_betweenness=result.node_betweenness;
-				var edge_betweenness=result.edge_betweenness;
-				var layout=result.layout_metrics;
-				var data=result.data_metrics;
 
 				if (repo_exists==true) {
+					$("#message").html("Making requests as "+user_logged);
 					$("#title").html($("#repo").val());
 				}
-				else {
+				else{
+					$("#message").html("Repository not found !");
 					$("#graph1").hide();
 					$("#slides").show();
 					$("#slides").html('<img src="static/error.svg"/>');
-				};
-
-
-				var content="<div class='Metrics'><h2>Metrics</h2>"
-				content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
-				for (i in max_degree) {content=content+'<br>'+max_degree[i]}
-				content=content+"<br><br><h3>Centrality: </h3>"
-				for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
-				content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
-				for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
-				content=content+"</div><div id='graphMetrics1'></div></div>"
-
-				$("#metrics1").html(content);
-
-				Plotly.newPlot('graphMetrics1', data, layout);
+				}
 
 				$.ajax({
-					url: "http://localhost:5000/getComm?org="+$("#org").val()+"&pass="+$("#pass").val()+"&repo="+$("#repo").val()+"&user="+$("#user").val(), 
+					url: "http://localhost:5000/getCont?org="+$("#org").val()+"&repo="+$("#repo").val(), 
 					success: function(result){
 						console.log('success');
+
+						$("#message").html(message);
 
 						var layout=result.layout_3D;
 						var data=result.data_3D;
 
-						$("#graph1").hide();
-						$("#metrics1").hide();
 						$("#slides").hide();
 						$(".Explenations").hide();
-						$("#graph2").show();
+						$("#graph1").show();
 
-						Plotly.newPlot('graph2', data, layout);
-						$("#comm").show();
-						$("#metrics2").show();
-
+						Plotly.newPlot('graph1', data, layout);
+						$("#cont").show();
+						$("#metrics1").show();
 
 						var max_degree=result.max_degree;
 						var node_betweenness=result.node_betweenness;
@@ -115,7 +75,7 @@ function runScript(){
 						var layout=result.layout_metrics;
 						var data=result.data_metrics;
 
-
+			
 						var content="<div class='Metrics'><h2>Metrics</h2>"
 						content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
 						for (i in max_degree) {content=content+'<br>'+max_degree[i]}
@@ -123,26 +83,77 @@ function runScript(){
 						for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
 						content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
 						for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
-						content=content+"</div><div id='graphMetrics2'></div></div>"
+						content=content+"</div><div id='graphMetrics1'></div></div>"
 
-						$("#metrics2").html(content);
+						$("#metrics1").html(content);
 
-						if (layout.error) {
-							$("#metrics2").html("<h3>No metrics !</h3><br>Users didn't commented on issues...<br>");
-						}
-						else {
-							Plotly.newPlot('graphMetrics2', data, layout);
-						}
-					   
+						Plotly.newPlot('graphMetrics1', data, layout);
 
-						$("#json").show();
+						$.ajax({
+							url: "http://localhost:5000/getComm?org="+$("#org").val()+"&repo="+$("#repo").val(), 
+							success: function(result){
+								console.log('success');
+
+								var layout=result.layout_3D;
+								var data=result.data_3D;
+
+								$("#graph1").hide();
+								$("#metrics1").hide();
+								$("#slides").hide();
+								$(".Explenations").hide();
+								$("#graph2").show();
+
+								Plotly.newPlot('graph2', data, layout);
+								$("#comm").show();
+								$("#metrics2").show();
+
+
+								var max_degree=result.max_degree;
+								var node_betweenness=result.node_betweenness;
+								var edge_betweenness=result.edge_betweenness;
+								var layout=result.layout_metrics;
+								var data=result.data_metrics;
+
+
+								var content="<div class='Metrics'><h2>Metrics</h2>"
+								content=content+"<br><br><h3>Maximum degree (most connected): </h3>"
+								for (i in max_degree) {content=content+'<br>'+max_degree[i]}
+								content=content+"<br><br><h3>Centrality: </h3>"
+								for (i in node_betweenness) {content=content+'<br>'+node_betweenness[i]}
+								content=content+"<br><br><h3>Edge betweenness (precious path): </h3>"
+								for (i in edge_betweenness) {content=content+'<br>'+edge_betweenness[i]}
+								content=content+"</div><div id='graphMetrics2'></div></div>"
+
+								$("#metrics2").html(content);
+
+								if (layout.error) {
+									$("#metrics2").html("<h3>No metrics !</h3><br>Users didn't commented on issues...<br>");
+								}
+								else {
+									Plotly.newPlot('graphMetrics2', data, layout);
+								}
+							   
+
+								$("#json").show();
+							},
+							error: function(error,status){
+								console.log('error');
+								console.log(status);
+
+								$("#graph1").hide();
+								$("#slides").show();
+								$("#slides").html('<img src="static/error.svg"/>');
+
+							},
+							complete: function(error,status){
+								console.log('complete');
+								console.log(status);
+							}
+						});
 					},
 					error: function(error,status){
 						console.log('error');
 						console.log(status);
-
-						$("#graph1").hide();
-						$("#slides").show();
 						$("#slides").html('<img src="static/error.svg"/>');
 
 					},
