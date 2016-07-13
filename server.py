@@ -104,12 +104,14 @@ def index():
 @app.route('/log',methods=['GET','POST'])
 def login_client():
 	if request.method == 'POST':
+		print "POST method :D "
 		user_login = request.form['user']
 		user_p = request.form['pass']
 		repo_org = request.form['org']
 		repo_name = request.form['repo']
 
 	if request.method == 'GET':	
+		print "GET Method :( "
 		user_login = ""
 		user_p = ""
 		repo_org = request.values.get('org')
@@ -138,7 +140,6 @@ def getContribution():
 	else:
 		rep=get_contribution(session['user'],session['repo'])
 
-	print rep.keys()
 	return Response(json.dumps(rep), mimetype='text/json')
 
 @app.route("/getComm")

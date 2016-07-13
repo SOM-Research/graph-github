@@ -31,7 +31,6 @@ function runScript(){
 		$("#slides").show();
 				
 		$("#slides").html('<div id="loadcont"><img id="load" src="static/unknown.gif"/></div>');
-
 		$.ajax({
 			url: "http://localhost:5000/log?org="+$("#org").val()+"&repo="+$("#repo").val(), 
 			success: function(result){
@@ -206,7 +205,7 @@ $(document).ready(function(){
 </head>
 <body>
 <h1><a href="index.html">GraphGithub</a></h1>
-<div id=form>
+<div id=form action="http://localhost:5000/log" method="POST">
 	<input id="user" type="text" name="user" value="AlexFabre" required>
 	<input id="pass" type="password" name="pass" value="Srp043k1" required>
 	<input id="org" type="text" name="org" value="twbs" required>
